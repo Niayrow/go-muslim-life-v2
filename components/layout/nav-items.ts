@@ -1,10 +1,8 @@
 import {
-  BookOpen,
   Droplets,
   GraduationCap,
   Heart,
   Home,
-  Moon,
   MoreHorizontal,
   Scale,
   Settings,
@@ -12,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type NavId = "home" | "coran" | "priere" | "savoir" | "plus";
+export type NavId = "home" | "savoir" | "plus";
 
 export type NavItem = {
   id: NavId;
@@ -25,14 +23,6 @@ export type NavItem = {
 
 export const PRIMARY_NAV: NavItem[] = [
   { id: "home", label: "Accueil", href: "/", icon: Home },
-  {
-    id: "coran",
-    label: "Coran",
-    href: "/coran",
-    icon: BookOpen,
-    match: ["/quran", "/audio"],
-  },
-  { id: "priere", label: "Prière", href: "/priere", icon: Moon },
   {
     id: "savoir",
     label: "Savoir",

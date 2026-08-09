@@ -3,6 +3,7 @@
 import {
   Loader2,
   LocateFixed,
+  CalendarDays,
   MapPin,
   Moon,
   Search,
@@ -14,9 +15,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { FlipCountdown } from "@/components/prayer/flip-countdown";
+import { PrayerWeekDialog } from "@/components/prayer/prayer-week-dialog";
 import { usePrayerTimes } from "@/hooks/use-prayer-times";
 import {
   CALCULATION_METHODS,
+  formatMethodAngles,
   type PrayerKey,
 } from "@/lib/prayer-times";
 import { Button } from "@/components/ui/button";
@@ -61,6 +65,7 @@ export function PrayerTimesView() {
 
   const [cityOpen, setCityOpen] = useState(false);
   const [methodOpen, setMethodOpen] = useState(false);
+  const [weekOpen, setWeekOpen] = useState(false);
 
   const method =
     CALCULATION_METHODS.find((m) => m.id === methodId) ?? CALCULATION_METHODS[0];
@@ -75,8 +80,13 @@ export function PrayerTimesView() {
           <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-brand-pearl md:text-4xl">
             Prière
           </h1>
+          {day?.gregorian && (
+            <p className="mt-1 text-sm font-medium text-brand-pearl">
+              {day.gregorian}
+            </p>
+          )}
           {day?.hijri && (
-            <p className="mt-1 text-sm text-brand-mist">{day.hijri}</p>
+            <p className="mt-0.5 text-sm text-brand-mist">{day.hijri}</p>
           )}
         </div>
 
@@ -111,6 +121,15 @@ export function PrayerTimesView() {
           >
             <Settings2 className="size-4" />
           </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => setWeekOpen(true)}
+          >
+            <CalendarDays className="size-3.5" />
+            Semaine
+          </Button>
         </div>
       </header>
 
@@ -139,9 +158,10 @@ export function PrayerTimesView() {
                   {next.time}
                 </p>
               </div>
-              <p className="font-mono text-3xl font-bold tabular-nums text-brand-pearl md:text-4xl">
-                {countdown}
-              </p>
+              <FlipCountdown
+                value={countdown}
+                className="text-3xl text-brand-pearl md:text-4xl"
+              />
               <p className="text-sm text-brand-steel-400">
                 {method.short} · {location.name}
               </p>
@@ -236,8 +256,12 @@ export function PrayerTimesView() {
               className="w-full"
               disabled={locating}
               onClick={async () => {
-                await locateMe();
-                setCityOpen(false);
+                try {
+                  await locateMe();
+                  setCityOpen(false);
+                } catch {
+                  /* erreur déjà gérée dans le hook */
+                }
               }}
             >
               {locating ? (
@@ -329,7 +353,12 @@ export function PrayerTimesView() {
                       <span className="block text-sm font-bold text-brand-pearl">
                         {m.short}
                       </span>
-                      <span className="text-xs text-brand-mist">{m.label}</span>
+                      <span className="mt-0.5 block text-xs text-brand-mist">
+                        {m.label}
+                      </span>
+                      <span className="mt-1.5 block text-[11px] font-medium text-brand-steel-400">
+                        {formatMethodAngles(m)}
+                      </span>
                     </span>
                     {active && (
                       <span className="text-xs font-semibold text-brand-warm">
@@ -343,6 +372,14 @@ export function PrayerTimesView() {
           </ul>
         </SheetContent>
       </Sheet>
+
+      <PrayerWeekDialog
+        open={weekOpen}
+        onOpenChange={setWeekOpen}
+        location={location}
+        methodId={methodId}
+        methodShort={method.short}
+      />
     </main>
   );
 }

@@ -24,7 +24,7 @@ export function MobileNav() {
           className="h-[4.35rem] px-1"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+            gridTemplateColumns: `repeat(${PRIMARY_NAV.length}, minmax(0, 1fr))`,
           }}
         >
           {PRIMARY_NAV.map((item) => {

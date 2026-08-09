@@ -16,6 +16,11 @@ export type CalculationMethod = {
   id: number;
   short: string;
   label: string;
+  /** Angle Fajr en degrés */
+  fajr: number;
+  /** Angle Isha en degrés, ou minutes après Maghrib si `ishaIsMinutes` */
+  isha: number;
+  ishaIsMinutes?: boolean;
 };
 
 export type PrayerSlot = {
@@ -38,6 +43,14 @@ export type DayTimings = {
   gregorian: string;
 };
 
+export type WeekDayRow = {
+  dateKey: string;
+  weekday: string;
+  dayMonth: string;
+  isToday: boolean;
+  times: Record<PrayerKey, string>;
+};
+
 export const DEFAULT_LOCATION: PrayerLocation = {
   name: "Paris",
   lat: 48.8566,
@@ -45,12 +58,51 @@ export const DEFAULT_LOCATION: PrayerLocation = {
 };
 
 export const CALCULATION_METHODS: CalculationMethod[] = [
-  { id: 12, short: "UOIF", label: "UOIF (France)" },
-  { id: 3, short: "MWL", label: "Ligue Islamique (MWL)" },
-  { id: 2, short: "ISNA", label: "ISNA" },
-  { id: 4, short: "Makkah", label: "Umm Al-Qura" },
-  { id: 5, short: "Egypt", label: "Égypte" },
+  {
+    id: 12,
+    short: "UOIF",
+    label: "UOIF (France)",
+    fajr: 12,
+    isha: 12,
+  },
+  {
+    id: 3,
+    short: "MWL",
+    label: "Ligue Islamique (MWL)",
+    fajr: 18,
+    isha: 17,
+  },
+  {
+    id: 2,
+    short: "ISNA",
+    label: "ISNA",
+    fajr: 15,
+    isha: 15,
+  },
+  {
+    id: 4,
+    short: "Makkah",
+    label: "Umm Al-Qura",
+    fajr: 18.5,
+    isha: 90,
+    ishaIsMinutes: true,
+  },
+  {
+    id: 5,
+    short: "Egypt",
+    label: "Égypte",
+    fajr: 19.5,
+    isha: 17.5,
+  },
 ];
+
+export function formatMethodAngles(method: CalculationMethod): string {
+  const fajr = `Fajr ${method.fajr}°`;
+  const isha = method.ishaIsMinutes
+    ? `Isha ${method.isha} min après Maghrib`
+    : `Isha ${method.isha}°`;
+  return `${fajr} · ${isha}`;
+}
 
 export const DEFAULT_METHOD_ID = 12;
 
@@ -112,12 +164,72 @@ export async function fetchDayTimings(
 
   const hijri = data.data.date.hijri;
   const gregorian = data.data.date.gregorian;
+  const gDay = Number(gregorian.day);
+  const gMonth = Number(gregorian.month.number);
+  const gYear = Number(gregorian.year);
+  const gregorianDate = new Date(gYear, gMonth - 1, gDay);
+  const gregorianFr = gregorianDate.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return {
     timings: data.data.timings,
     hijri: `${hijri.day} ${hijri.month.en} ${hijri.year}`,
-    gregorian: `${gregorian.day}-${gregorian.month.number}-${gregorian.year}`,
+    gregorian: gregorianFr.charAt(0).toUpperCase() + gregorianFr.slice(1),
   };
+}
+
+function toDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** Horaires pour les 7 prochains jours (aujourd’hui inclus). */
+export async function fetchWeekTimings(
+  location: PrayerLocation,
+  methodId: number,
+  from = new Date()
+): Promise<WeekDayRow[]> {
+  const start = new Date(from);
+  start.setHours(12, 0, 0, 0);
+  const todayKey = toDateKey(start);
+
+  const dates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    return d;
+  });
+
+  const days = await Promise.all(
+    dates.map((d) => fetchDayTimings(location, methodId, d))
+  );
+
+  return dates.map((date, i) => {
+    const weekday = date.toLocaleDateString("fr-FR", { weekday: "short" });
+    const dayMonth = date.toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "short",
+    });
+    const times = Object.fromEntries(
+      PRAYER_SLOTS.map((slot) => [
+        slot.key,
+        formatPrayerTime(days[i].timings[slot.key]),
+      ])
+    ) as Record<PrayerKey, string>;
+
+    return {
+      dateKey: toDateKey(date),
+      weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1),
+      dayMonth,
+      isToday: toDateKey(date) === todayKey,
+      times,
+    };
+  });
 }
 
 export function getPrayerSlots(
@@ -208,17 +320,88 @@ export async function reverseGeocodeFr(
   lat: number,
   lng: number
 ): Promise<string> {
+  // 1) BAN — forcer le niveau commune (jamais une rue)
+  try {
+    const res = await fetch(
+      `https://api-adresse.data.gouv.fr/reverse/?lon=${lng}&lat=${lat}&type=municipality`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const props = data?.features?.[0]?.properties;
+      const city = props?.city?.trim();
+      const postcode = props?.postcode?.trim();
+      if (city) {
+        return postcode ? `${city} (${postcode})` : city;
+      }
+    }
+  } catch {
+    /* continue */
+  }
+
+  // 2) Communes geo.api.gouv
+  try {
+    const communesRes = await fetch(
+      `https://geo.api.gouv.fr/communes?lat=${lat}&lon=${lng}&fields=nom,codesPostaux&limit=1`
+    );
+    if (communesRes.ok) {
+      const communes = (await communesRes.json()) as Array<{
+        nom?: string;
+        codesPostaux?: string[];
+      }>;
+      const nom = communes[0]?.nom?.trim();
+      const postcode = communes[0]?.codesPostaux?.[0];
+      if (nom) {
+        return postcode ? `${nom} (${postcode})` : nom;
+      }
+    }
+  } catch {
+    /* continue */
+  }
+
+  // 3) BAN sans filtre — prendre uniquement .city
   try {
     const res = await fetch(
       `https://api-adresse.data.gouv.fr/reverse/?lon=${lng}&lat=${lat}`
     );
-    if (!res.ok) return "Ma position";
-    const data = await res.json();
-    const label =
-      data?.features?.[0]?.properties?.city ||
-      data?.features?.[0]?.properties?.label;
-    return label || "Ma position";
+    if (res.ok) {
+      const data = await res.json();
+      const props = data?.features?.[0]?.properties;
+      const city = props?.city?.trim();
+      const postcode = props?.postcode?.trim();
+      if (city) {
+        return postcode ? `${city} (${postcode})` : city;
+      }
+    }
   } catch {
-    return "Ma position";
+    /* continue */
   }
+
+  // 4) Nominatim (hors France)
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=12&addressdetails=1`,
+      {
+        headers: {
+          Accept: "application/json",
+          "Accept-Language": "fr",
+        },
+      }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const a = data?.address;
+      const name = (
+        a?.city ||
+        a?.town ||
+        a?.village ||
+        a?.municipality ||
+        ""
+      ).trim();
+      if (name) return name;
+    }
+  } catch {
+    /* continue */
+  }
+
+  return "Position actuelle";
 }

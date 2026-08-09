@@ -14,11 +14,11 @@ export function DeskNav() {
   const { ready, icons, MotionIconConfig } = useNavMotionIcons();
 
   const bar = (
-    <header className="shell-desktop-only desk-nav-chrome fixed inset-x-0 top-0 z-40 border-b border-brand-line/40">
+    <header className="shell-desktop-only desk-nav-chrome fixed inset-x-0 top-3 z-40">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-6 lg:px-8">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2.5 rounded-xl px-1.5 py-1 transition-colors hover:bg-brand-panel-elevated/60"
+          className="flex shrink-0 items-center gap-2.5 rounded-xl px-1.5 py-1 transition-colors hover:bg-white/5"
         >
           <span className="flex size-8 items-center justify-center rounded-lg bg-brand-warm/15 text-sm font-extrabold text-brand-warm">
             G
@@ -43,7 +43,7 @@ export function DeskNav() {
                   "nav-tab group relative flex items-center gap-2 rounded-xl px-3.5 py-2 transition-colors",
                   active
                     ? "nav-tab--active bg-brand-warm/10"
-                    : "nav-tab--idle hover:bg-brand-panel-elevated/50"
+                    : "nav-tab--idle hover:bg-white/5"
                 )}
               >
                 <Icon

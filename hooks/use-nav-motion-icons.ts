@@ -2,10 +2,8 @@
 
 import { useEffect, useState, type ComponentType } from "react";
 import {
-  BookOpen as BookOpenStatic,
   GraduationCap as GraduationCapStatic,
   Home as HomeStatic,
-  Moon as MoonStatic,
   MoreHorizontal as MoreStatic,
   type LucideIcon,
 } from "lucide-react";
@@ -25,8 +23,6 @@ type NavMotionModule = typeof import("@/components/icons/nav-motion");
 
 const STATIC: Record<NavId, NavTabIcon> = {
   home: HomeStatic as NavTabIcon,
-  coran: BookOpenStatic as NavTabIcon,
-  priere: MoonStatic as NavTabIcon,
   savoir: GraduationCapStatic as NavTabIcon,
   plus: MoreStatic as NavTabIcon,
 };
@@ -70,8 +66,6 @@ export function useNavMotionIcons() {
 
   const icons: Record<NavId, NavTabIcon> = {
     home: (mod?.House as NavTabIcon | undefined) ?? STATIC.home,
-    coran: (mod?.BookOpen as NavTabIcon | undefined) ?? STATIC.coran,
-    priere: (mod?.Moon as NavTabIcon | undefined) ?? STATIC.priere,
     savoir: (mod?.GraduationCap as NavTabIcon | undefined) ?? STATIC.savoir,
     plus: (mod?.Ellipsis as NavTabIcon | undefined) ?? STATIC.plus,
   };

@@ -274,29 +274,112 @@
   border-color: rgba(206, 166, 135, 0.22);
 }
 
+/* --- Modals --- */
+
+.modal-overlay {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 20%, rgba(206, 166, 135, 0.08), transparent 70%),
+    rgba(3, 8, 14, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: modal-overlay-in 0.22s ease-out;
+}
+
+.modal-shell {
+  overflow: hidden;
+  background:
+    linear-gradient(
+      165deg,
+      rgba(27, 45, 67, 0.97) 0%,
+      rgba(17, 29, 45, 0.98) 48%,
+      rgba(11, 21, 34, 0.99) 100%
+    );
+  border: 1px solid rgba(166, 184, 203, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(240, 209, 188, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.2),
+    0 28px 80px rgba(0, 0, 0, 0.55);
+  animation: modal-shell-in 0.25s ease-out;
+}
+
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-shell-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal-shell {
+    animation: none;
+  }
+}
+
+.modal-shell::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(240, 209, 188, 0.12), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 0% 100%, rgba(121, 144, 161, 0.1), transparent 50%);
+  z-index: 0;
+}
+
+.modal-shell-body {
+  position: relative;
+  z-index: 1;
+}
+
+.modal-header-rule {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(206, 166, 135, 0.35) 30%,
+    rgba(166, 184, 203, 0.2) 70%,
+    transparent
+  );
+}
+
 .font-arabic {
   font-family: var(--font-amiri), "Times New Roman", Georgia, serif;
 }
 
-/* --- Shell / nav (pattern Sawra) --- */
+/* --- Shell / nav (transparent) --- */
 
 .mobile-dock-chrome {
-  background: rgba(17, 29, 45, 0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(166, 184, 203, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(240, 209, 188, 0.04),
-    0 -12px 36px rgba(0, 0, 0, 0.28);
+  background: transparent;
+  border-top: 1px solid transparent;
+  box-shadow: none;
 }
 
 .desk-nav-chrome {
-  background: rgba(17, 29, 45, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow:
-    inset 0 -1px 0 rgba(240, 209, 188, 0.04),
-    0 8px 28px rgba(0, 0, 0, 0.22);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.mobile-header-chrome {
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .nav-tab {
@@ -384,7 +467,7 @@
   }
 
   .shell-main {
-    padding-top: 3.5rem;
+    padding-top: calc(3.5rem + 0.75rem);
     padding-bottom: 0;
   }
 }
@@ -427,4 +510,64 @@
   .home-reveal {
     animation: none;
   }
+}
+
+/* Hero title — gradient animé couleurs brand (droite → gauche, sans retour) */
+@keyframes hero-title-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.hero-title-gradient {
+  background-image: linear-gradient(
+    110deg,
+    #e6edf5 0%,
+    #f0d1bc 18%,
+    #cea687 36%,
+    #ddbca3 52%,
+    #aab7c5 68%,
+    #f0d1bc 84%,
+    #e6edf5 100%
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: hero-title-shimmer 6s linear infinite;
+}
+
+.hero-bismillah-gradient {
+  background-image: linear-gradient(
+    100deg,
+    #cea687 0%,
+    #f0d1bc 28%,
+    #ddbca3 55%,
+    #f0d1bc 78%,
+    #b98d6e 100%
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: hero-title-shimmer 8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-title-gradient,
+  .hero-bismillah-gradient {
+    animation: none;
+    background-position: 40% 50%;
+  }
+}
+
+.hero-word-halo {
+  text-shadow:
+    0 0 12px rgba(240, 209, 188, 0.35),
+    0 0 28px rgba(206, 166, 135, 0.22);
 }

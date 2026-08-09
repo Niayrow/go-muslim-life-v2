@@ -37,10 +37,7 @@ function DialogOverlay({
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
-      className={cn(
-        "fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px]",
-        className
-      )}
+      className={cn("modal-overlay fixed inset-0 z-50", className)}
       {...props}
     />
   );
@@ -54,20 +51,26 @@ function DialogContent({
   return (
     <DialogPortal>
       <DialogOverlay />
-      <DialogPrimitive.Content
-        data-slot="dialog-content"
-        className={cn(
-          "fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-brand-line/40 bg-brand-panel-strong p-5 shadow-2xl outline-none",
-          className
-        )}
-        {...props}
-      >
-        {children}
-        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-lg p-1.5 text-brand-mist transition-colors hover:bg-brand-panel-elevated hover:text-brand-pearl">
-          <X className="size-4" />
-          <span className="sr-only">Fermer</span>
-        </DialogPrimitive.Close>
-      </DialogPrimitive.Content>
+      <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+        <DialogPrimitive.Content
+          data-slot="dialog-content"
+          className={cn(
+            "modal-shell pointer-events-auto relative z-10 w-full max-w-lg rounded-[1.75rem] p-0 outline-none",
+            className
+          )}
+          {...props}
+        >
+          <div className="modal-shell-body">{children}</div>
+          <DialogPrimitive.Close
+            type="button"
+            aria-label="Fermer"
+            className="absolute top-3.5 right-3.5 z-30 flex size-10 items-center justify-center rounded-full border border-brand-line/40 bg-brand-night/70 text-brand-pearl shadow-lg transition-colors hover:border-brand-gold-400/40 hover:bg-brand-warm/15 hover:text-brand-warm"
+          >
+            <X className="size-5" strokeWidth={2.2} />
+            <span className="sr-only">Fermer</span>
+          </DialogPrimitive.Close>
+        </DialogPrimitive.Content>
+      </div>
     </DialogPortal>
   );
 }
@@ -76,7 +79,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("mb-4 flex flex-col gap-1.5 pr-8", className)}
+      className={cn("flex flex-col gap-2 pr-12", className)}
       {...props}
     />
   );
@@ -89,7 +92,10 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg font-bold text-brand-pearl", className)}
+      className={cn(
+        "text-xl font-extrabold tracking-tight text-brand-pearl",
+        className
+      )}
       {...props}
     />
   );
@@ -102,7 +108,7 @@ function DialogDescription({
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-sm text-brand-mist", className)}
+      className={cn("text-sm leading-relaxed text-brand-mist", className)}
       {...props}
     />
   );

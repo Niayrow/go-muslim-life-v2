@@ -124,33 +124,44 @@ export function usePrayerTimes() {
     return () => window.clearTimeout(id);
   }, [cityQuery]);
 
-  const locateMe = useCallback(async () => {
-    if (!navigator.geolocation) {
-      setError("Géolocalisation non disponible.");
-      return;
-    }
-    setLocating(true);
-    setError(null);
+  const locateMe = useCallback((): Promise<PrayerLocation> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        const message = "Géolocalisation non disponible.";
+        setError(message);
+        reject(new Error(message));
+        return;
+      }
 
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          const name = await reverseGeocodeFr(lat, lng);
-          setLocation({ name, lat, lng });
-        } catch {
-          setError("Impossible d’obtenir la position.");
-        } finally {
+      setLocating(true);
+      setError(null);
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const name = await reverseGeocodeFr(lat, lng);
+            const loc = { name, lat, lng };
+            setLocation(loc);
+            resolve(loc);
+          } catch {
+            const message = "Impossible d’obtenir la position.";
+            setError(message);
+            reject(new Error(message));
+          } finally {
+            setLocating(false);
+          }
+        },
+        () => {
+          const message = "Permission de localisation refusée.";
+          setError(message);
           setLocating(false);
-        }
-      },
-      () => {
-        setError("Permission de localisation refusée.");
-        setLocating(false);
-      },
-      { enableHighAccuracy: false, timeout: 10000 }
-    );
+          reject(new Error(message));
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    });
   }, [setLocation]);
 
   const slots: PrayerSlot[] = useMemo(
