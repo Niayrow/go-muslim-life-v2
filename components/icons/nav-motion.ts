@@ -5,5 +5,5 @@ export {
   BookOpen,
   Moon,
   GraduationCap,
-  Ellipsis,
+  Settings,
 } from "lucide-react-motion";

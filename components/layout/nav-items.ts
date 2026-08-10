@@ -1,16 +1,11 @@
 import {
-  Droplets,
   GraduationCap,
-  Heart,
   Home,
-  MoreHorizontal,
-  Scale,
   Settings,
-  User,
   type LucideIcon,
 } from "lucide-react";
 
-export type NavId = "home" | "savoir" | "plus";
+export type NavId = "home" | "savoir" | "settings";
 
 export type NavItem = {
   id: NavId;
@@ -30,53 +25,7 @@ export const PRIMARY_NAV: NavItem[] = [
     icon: GraduationCap,
     match: ["/apprendre", "/quiz", "/bibliotheque", "/histoires"],
   },
-  { id: "plus", label: "Plus", href: "/plus", icon: MoreHorizontal },
-];
-
-export type MoreLink = {
-  label: string;
-  href: string;
-  description: string;
-  icon: LucideIcon;
-};
-
-export const MORE_LINKS: MoreLink[] = [
-  {
-    label: "Purification",
-    href: "/purification",
-    description: "Ablutions et hygiène",
-    icon: Droplets,
-  },
-  {
-    label: "Jeûne",
-    href: "/jeune",
-    description: "Ramadan et jeûne",
-    icon: Heart,
-  },
-  {
-    label: "Zakat",
-    href: "/zakat",
-    description: "Calcul et règles",
-    icon: Scale,
-  },
-  {
-    label: "Profil",
-    href: "/profil",
-    description: "Compte et progression",
-    icon: User,
-  },
-  {
-    label: "Réglages",
-    href: "/settings",
-    description: "Préférences",
-    icon: Settings,
-  },
-  {
-    label: "Design system",
-    href: "/design-system",
-    description: "Tokens et composants",
-    icon: GraduationCap,
-  },
+  { id: "settings", label: "Réglages", href: "/settings", icon: Settings },
 ];
 
 export function isNavActive(pathname: string, item: NavItem): boolean {

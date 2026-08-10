@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import {
   motion,
   useScroll,
@@ -8,6 +9,7 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from "motion/react";
+import { Headphones } from "lucide-react";
 
 import { PrayerLayer } from "@/components/home/prayer-layer";
 import { QuickAccessLayer } from "@/components/home/quick-access";
@@ -16,6 +18,85 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
 type LayerId = "hero" | "prayer" | "quick" | "modules";
+
+function HeroScrollHint({
+  onClick,
+  className,
+}: {
+  onClick?: () => void;
+  className?: string;
+}) {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <motion.button
+      type="button"
+      aria-label="Défiler vers le bas"
+      onClick={onClick}
+      initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.9, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        "group relative flex flex-col items-center gap-3 outline-none",
+        className
+      )}
+    >
+      <span className="text-[10px] font-bold tracking-[0.28em] text-brand-gold-300/80 uppercase transition-colors group-hover:text-brand-warm">
+        Explorer
+      </span>
+
+      {/* Souris élégante */}
+      <span className="relative flex h-11 w-7 items-start justify-center rounded-full border border-brand-gold-400/45 bg-brand-panel/30 shadow-[0_0_24px_rgba(206,166,135,0.18)] backdrop-blur-sm">
+        <motion.span
+          aria-hidden
+          className="mt-2 h-1.5 w-1 rounded-full bg-brand-warm"
+          animate={
+            reduceMotion
+              ? undefined
+              : {
+                  y: [0, 10, 0],
+                  opacity: [1, 0.35, 1],
+                }
+          }
+          transition={{
+            duration: 1.7,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-full bg-brand-warm/10 opacity-0 blur-md transition-opacity group-hover:opacity-100"
+        />
+      </span>
+
+      {/* Chevrons cascade */}
+      <span className="relative flex h-8 w-6 flex-col items-center">
+        {[0, 1].map((i) => (
+          <motion.span
+            key={i}
+            aria-hidden
+            className="absolute left-1/2 top-0 -ml-[5px] h-2.5 w-2.5 rotate-45 border-r border-b border-brand-gold-400/70"
+            animate={
+              reduceMotion
+                ? undefined
+                : {
+                    y: [0, 10],
+                    opacity: [0.15, 0.95, 0.15],
+                  }
+            }
+            transition={{
+              duration: 1.55,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.22,
+            }}
+          />
+        ))}
+      </span>
+    </motion.button>
+  );
+}
 
 function HeroLayer() {
   return (
@@ -44,6 +125,16 @@ function HeroLayer() {
         </span>{" "}
         et maîtrisez les bases de votre religion.
       </p>
+
+      <Link
+        href="/sawra"
+        className="btn-bronze-shine group inline-flex max-w-full items-center justify-center gap-2.5 rounded-2xl px-5 py-3.5 text-sm font-bold sm:px-7 sm:py-4 sm:text-[15px]"
+      >
+        <Headphones className="size-4 shrink-0 opacity-90 transition-transform duration-300 group-hover:scale-110" />
+        <span className="text-balance">
+          Écouter le Coran et bien plus encore avec Sawra
+        </span>
+      </Link>
     </div>
   );
 }
@@ -65,17 +156,20 @@ function MobileRevealSection({
   className,
   amount = 0.35,
   forceActive = false,
+  sectionRef,
 }: {
   children: (active: boolean) => React.ReactNode;
   className?: string;
   amount?: number;
   forceActive?: boolean;
+  sectionRef?: React.RefObject<HTMLElement | null>;
 }) {
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(forceActive);
 
   return (
     <motion.section
+      ref={sectionRef}
       className={cn(
         "relative flex w-full flex-col items-center justify-center px-4 py-12",
         className
@@ -100,19 +194,41 @@ function MobileRevealSection({
 }
 
 function MobileHomeFlow() {
+  const prayerRef = useRef<HTMLElement | null>(null);
+
   return (
     <div className="relative flex w-full flex-col">
       <AmbientBg />
 
       <MobileRevealSection
-        className="min-h-[88dvh]"
+        className="relative min-h-[88dvh]"
         amount={0.2}
         forceActive
       >
-        {() => <HeroLayer />}
+        {() => (
+          <>
+            <HeroLayer />
+            <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center sm:bottom-8">
+              <div className="pointer-events-auto">
+                <HeroScrollHint
+                  onClick={() =>
+                    prayerRef.current?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    })
+                  }
+                />
+              </div>
+            </div>
+          </>
+        )}
       </MobileRevealSection>
 
-      <MobileRevealSection className="min-h-[90dvh]" amount={0.3}>
+      <MobileRevealSection
+        className="min-h-[90dvh]"
+        amount={0.3}
+        sectionRef={prayerRef}
+      >
         {(active) => (
           <motion.div
             initial={false}
@@ -235,6 +351,25 @@ function DesktopStickyScene() {
               }
             >
               <HeroLayer />
+            </div>
+
+            <div
+              className={cn(
+                "absolute inset-x-0 bottom-8 flex justify-center md:bottom-10",
+                activeLayer === "hero"
+                  ? "pointer-events-auto"
+                  : "pointer-events-none"
+              )}
+            >
+              <HeroScrollHint
+                onClick={() => {
+                  const el = containerRef.current;
+                  if (!el) return;
+                  const target =
+                    window.scrollY + el.getBoundingClientRect().height * 0.22;
+                  window.scrollTo({ top: target, behavior: "smooth" });
+                }}
+              />
             </div>
           </motion.div>
 

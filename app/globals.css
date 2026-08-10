@@ -263,6 +263,104 @@
   box-shadow: 0 3px 10px rgba(185, 141, 110, 0.45);
 }
 
+/* Bouton hero — bronze métallique brillant */
+@keyframes bronze-shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
+}
+
+.btn-bronze-shine {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #1a1008;
+  background:
+    linear-gradient(
+      145deg,
+      #f5e0c8 0%,
+      #e8c49a 18%,
+      #c9956a 42%,
+      #a8744a 58%,
+      #d4a574 78%,
+      #f0d1bc 100%
+    );
+  background-size: 100% 100%;
+  border: 1px solid rgba(245, 224, 200, 0.55);
+  box-shadow:
+    0 1px 0 rgba(255, 236, 210, 0.55) inset,
+    0 -1px 0 rgba(90, 50, 20, 0.28) inset,
+    0 4px 18px rgba(168, 110, 60, 0.45),
+    0 0 36px rgba(206, 166, 135, 0.28);
+  text-shadow: 0 1px 0 rgba(255, 240, 220, 0.35);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+}
+
+.btn-bronze-shine::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 248, 235, 0.15) 45%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 248, 235, 0.15) 55%,
+    transparent 65%
+  );
+  background-size: 220% 100%;
+  animation: bronze-shimmer 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.btn-bronze-shine::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 245, 230, 0.35) 0%,
+    transparent 42%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.btn-bronze-shine > * {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-bronze-shine:hover {
+  filter: brightness(1.06);
+  box-shadow:
+    0 1px 0 rgba(255, 240, 220, 0.65) inset,
+    0 -1px 0 rgba(90, 50, 20, 0.22) inset,
+    0 6px 24px rgba(168, 110, 60, 0.55),
+    0 0 48px rgba(240, 209, 188, 0.38);
+  transform: translateY(-1px);
+}
+
+.btn-bronze-shine:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-bronze-shine::before {
+    animation: none;
+  }
+}
+
 .brand-button-secondary {
   background: rgba(17, 29, 45, 0.78);
   color: #d7e4ef;
@@ -382,6 +480,17 @@
   -webkit-backdrop-filter: none;
 }
 
+/* Chrome unifié nav + horaires (hauteur inset sous la rangée logo) */
+html.has-sticky-prayer {
+  --sticky-prayer-h: 5.25rem;
+}
+
+@media (min-width: 768px) {
+  html.has-sticky-prayer {
+    --sticky-prayer-h: 4.75rem;
+  }
+}
+
 .nav-tab {
   color: #7f93a8;
 }
@@ -469,6 +578,11 @@
   .shell-main {
     padding-top: calc(3.5rem + 0.75rem);
     padding-bottom: 0;
+  }
+
+  /* Nav glass + rangée horaires intégrée */
+  .shell-main.shell-main--sticky-prayer {
+    padding-top: calc(3.5rem + 0.75rem + var(--sticky-prayer-h, 4.75rem));
   }
 }
 

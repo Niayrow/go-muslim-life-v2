@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return (
-    <PlaceholderPage
-      title="Purification"
-      description="Ablutions et règles de pureté."
-    />
-  );
+  redirect("/savoir/purification");
 }

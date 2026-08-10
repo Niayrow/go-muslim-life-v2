@@ -1,7 +1,5 @@
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return (
-    <PlaceholderPage title="Jeûne" description="Ramadan, jeûne et tracker." />
-  );
+export default function JeuneLegacyPage() {
+  redirect("/savoir/jeune");
 }

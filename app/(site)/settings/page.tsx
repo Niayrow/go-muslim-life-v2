@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { SettingsView } from "@/components/settings/settings-view";
 
 export default function Page() {
-  return (
-    <PlaceholderPage
-      title="Réglages"
-      description="Préférences de l’application."
-    />
-  );
+  return <SettingsView />;
 }

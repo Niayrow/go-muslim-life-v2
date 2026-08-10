@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { PrayerNavInset } from "@/components/prayer/prayer-nav-inset";
+
 export function MobileHeader() {
   return (
     <header className="shell-mobile-only mobile-header-chrome sticky top-3 z-30 mx-3 mt-3">
@@ -21,6 +23,8 @@ export function MobileHeader() {
           Réglages
         </Link>
       </div>
+
+      <PrayerNavInset variant="mobile" />
     </header>
   );
 }

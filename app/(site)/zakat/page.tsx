@@ -1,7 +1,5 @@
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return (
-    <PlaceholderPage title="Zakat" description="Calcul et règles de la zakat." />
-  );
+export default function ZakatLegacyPage() {
+  redirect("/savoir/zakat");
 }

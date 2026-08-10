@@ -30,7 +30,7 @@ const MODULES: {
     title: "La Purification",
     description:
       "La clé du Paradis. Ablutions (Wudu), Ghusl et Tayammum étape par étape.",
-    href: "/purification",
+    href: "/savoir/purification",
     icon: Droplets,
     accent: "text-sky-400",
     iconBg: "bg-sky-400/10",
@@ -52,7 +52,7 @@ const MODULES: {
     title: "Comportement",
     description:
       "L’Excellence (Ihsan). Colère, famille, langue… Devenez votre meilleure version.",
-    href: "/plus",
+    href: "/savoir/comportement",
     icon: Crown,
     accent: "text-orange-400",
     iconBg: "bg-orange-400/10",
@@ -63,7 +63,7 @@ const MODULES: {
     title: "Le Jeûne",
     description:
       "Ramadan, Nuit du Destin et Aïd. Règles et sagesse du 4ème pilier.",
-    href: "/jeune",
+    href: "/savoir/jeune",
     icon: Moon,
     accent: "text-violet-400",
     iconBg: "bg-violet-400/10",
@@ -74,7 +74,7 @@ const MODULES: {
     title: "La Zakat",
     description:
       "Le 3ème pilier. Nisab, calcul, bénéficiaires… Maîtrisez l’aumône obligatoire.",
-    href: "/zakat",
+    href: "/savoir/zakat",
     icon: Coins,
     accent: "text-amber-400",
     iconBg: "bg-amber-400/10",

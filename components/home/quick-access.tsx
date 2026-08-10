@@ -16,8 +16,8 @@ import { cn } from "@/lib/utils";
 
 const FEATURED = {
   label: "Lire et écouter le Coran",
-  description: "Sur Sawra.app — lecture & récitation",
-  href: "https://sawra.app",
+  description: "Découvrir Sawra — lecture & récitation",
+  href: "/sawra",
   icon: BookOpen,
 };
 
@@ -30,7 +30,7 @@ const QUICK: {
   {
     label: "Invocations",
     description: "Douas & Adhkar",
-    href: "/plus",
+    href: "/savoir",
     icon: Sparkles,
   },
   {
@@ -42,7 +42,7 @@ const QUICK: {
   {
     label: "Histoires des Prophètes",
     description: "Récits et enseignements",
-    href: "/savoir",
+    href: "/histoires",
     icon: ScrollText,
   },
   {
@@ -103,10 +103,8 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
           }
           transition={{ duration: 0.6, delay: active ? 0.08 : 0, ease }}
         >
-          <a
+          <Link
             href={FEATURED.href}
-            target="_blank"
-            rel="noopener noreferrer"
             className={cn(
               "group relative flex h-full min-h-[160px] flex-col justify-between overflow-hidden rounded-[1.75rem] border border-brand-gold-400/25 bg-gradient-to-br from-brand-warm/18 via-brand-panel to-brand-night p-5 text-left sm:min-h-[220px] md:min-h-[280px] md:p-8 lg:min-h-full lg:p-9",
               "shadow-[0_24px_60px_rgba(0,0,0,0.35)] transition-[border-color,box-shadow,transform] duration-300",
@@ -144,11 +142,11 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
                 {FEATURED.description}
               </span>
               <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-warm transition-transform duration-300 group-hover:translate-x-0.5 md:mt-4">
-                Ouvrir Sawra
+                Découvrir Sawra
                 <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
             </div>
-          </a>
+          </Link>
         </motion.div>
 
         {/* Grille 2×2 */}
