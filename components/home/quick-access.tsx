@@ -65,7 +65,7 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
   const FeaturedIcon = FEATURED.icon;
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-4 px-1 py-2 text-center max-md:max-h-[min(100dvh,900px)] sm:gap-6 md:gap-8 md:py-4">
+    <div className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-3 px-1 py-0 text-center max-md:max-h-[min(100dvh,900px)] sm:gap-5 md:gap-8 md:py-4">
       <motion.div
         className="space-y-2 md:space-y-3"
         initial={false}
@@ -87,7 +87,7 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
         </p>
       </motion.div>
 
-      <div className="grid w-full gap-2.5 sm:gap-4 lg:grid-cols-2 lg:gap-5 lg:items-stretch">
+      <div className="grid w-full gap-3 sm:gap-4 lg:grid-cols-2 lg:gap-5 lg:items-stretch">
         {/* Carte Coran — dominante */}
         <motion.div
           className="h-full"
@@ -106,22 +106,20 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
           <Link
             href={FEATURED.href}
             className={cn(
-              "group relative flex h-full min-h-[160px] flex-col justify-between overflow-hidden rounded-[1.75rem] border border-brand-gold-400/25 bg-gradient-to-br from-brand-warm/18 via-brand-panel to-brand-night p-5 text-left sm:min-h-[220px] md:min-h-[280px] md:p-8 lg:min-h-full lg:p-9",
-              "shadow-[0_24px_60px_rgba(0,0,0,0.35)] transition-[border-color,box-shadow,transform] duration-300",
-              "hover:-translate-y-1 hover:border-brand-gold-400/45 hover:shadow-[0_28px_70px_rgba(0,0,0,0.4)]"
+              "float-tile group relative z-0 flex h-full min-h-[160px] flex-col justify-between rounded-[1.75rem] border border-brand-gold-400/30 bg-gradient-to-br from-brand-warm/18 via-brand-panel to-brand-night p-5 text-left sm:min-h-[220px] md:min-h-[280px] md:p-8 lg:min-h-full lg:p-9",
+              "transition-[border-color,transform] duration-300",
+              "hover:-translate-y-1.5 hover:border-brand-gold-400/50"
             )}
           >
-            <div
+            <span
               aria-hidden
-              className="pointer-events-none absolute -top-16 -right-10 size-56 rounded-full bg-brand-warm/20 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -bottom-20 -left-10 size-48 rounded-full bg-brand-steel-400/15 blur-3xl"
-            />
-
+              className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
+            >
+              <span className="absolute -top-16 -right-10 size-56 rounded-full bg-brand-warm/20 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+              <span className="absolute -bottom-20 -left-10 size-48 rounded-full bg-brand-steel-400/15 blur-3xl" />
+            </span>
             <motion.span
-              className="relative flex size-12 items-center justify-center rounded-2xl bg-brand-warm/20 text-brand-warm sm:size-16 md:size-[4.5rem]"
+              className="relative flex size-12 items-center justify-center rounded-2xl border border-brand-gold-400/30 bg-brand-warm/20 text-brand-warm shadow-[inset_0_1px_0_rgba(240,209,188,0.22)] sm:size-16 md:size-[4.5rem]"
               animate={
                 active && !reduceMotion ? { y: [0, -6, 0] } : { y: 0 }
               }
@@ -150,7 +148,7 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
         </motion.div>
 
         {/* Grille 2×2 */}
-        <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {QUICK.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -176,11 +174,11 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
                 <Link
                   href={item.href}
                   className={cn(
-                    "group glass-panel-interactive relative flex h-full min-h-[108px] flex-col justify-between overflow-hidden rounded-[1.25rem] p-3.5 text-left sm:min-h-[128px] sm:rounded-[1.5rem] sm:p-5 md:min-h-[150px] md:p-6",
-                    "hover:border-brand-gold-400/30"
+                    "float-tile group relative flex h-full min-h-[108px] flex-col justify-between rounded-[1.25rem] p-3.5 text-left transition-[transform,box-shadow,border-color] duration-300 sm:min-h-[128px] sm:rounded-[1.5rem] sm:p-5 md:min-h-[150px] md:p-6",
+                    "hover:-translate-y-1.5 hover:border-brand-gold-400/35"
                   )}
                 >
-                  <span className="flex size-9 items-center justify-center rounded-xl bg-brand-warm/12 text-brand-warm transition-transform duration-300 group-hover:scale-110 sm:size-12 sm:rounded-2xl md:size-14">
+                  <span className="flex size-9 items-center justify-center rounded-xl border border-brand-gold-400/25 bg-brand-warm/12 text-brand-warm shadow-[inset_0_1px_0_rgba(240,209,188,0.16)] transition-transform duration-300 group-hover:scale-110 sm:size-12 sm:rounded-2xl md:size-14">
                     <Icon className="size-4 sm:size-5 md:size-6" strokeWidth={2.1} />
                   </span>
                   <span className="mt-3 block pr-4 sm:mt-5 sm:pr-6">

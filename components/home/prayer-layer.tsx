@@ -65,7 +65,7 @@ export function PrayerLayer() {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-5 px-1 text-center md:max-w-xl md:gap-7">
+      <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-4 px-1 text-center md:max-w-xl md:gap-7">
         <div className="space-y-1.5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-gold-400">
             Horaires
@@ -80,11 +80,11 @@ export function PrayerLayer() {
           )}
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2.5">
           <button
             type="button"
             onClick={() => setCityOpen(true)}
-            className="inline-flex max-w-[14rem] items-center gap-1.5 rounded-full border border-brand-line/40 bg-brand-panel/70 px-3 py-1.5 text-xs font-semibold text-brand-pearl transition-colors hover:border-brand-gold-400/35 hover:bg-brand-warm/10"
+            className="float-chip inline-flex max-w-[14rem] items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold text-brand-pearl"
           >
             <MapPin className="size-3.5 shrink-0 text-brand-warm" />
             <span className="truncate">{location.name}</span>
@@ -92,7 +92,7 @@ export function PrayerLayer() {
           <button
             type="button"
             onClick={() => setMethodOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-full border border-brand-line/40 bg-brand-panel/70 px-3 py-1.5 text-xs font-semibold text-brand-pearl transition-colors hover:border-brand-gold-400/35 hover:bg-brand-warm/10"
+            className="float-chip inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold text-brand-pearl"
             aria-label="Changer la méthode de calcul"
           >
             <Settings2 className="size-3.5 shrink-0 text-brand-warm" />
@@ -101,7 +101,7 @@ export function PrayerLayer() {
           <button
             type="button"
             onClick={() => setWeekOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-full border border-brand-line/40 bg-brand-panel/70 px-3 py-1.5 text-xs font-semibold text-brand-pearl transition-colors hover:border-brand-gold-400/35 hover:bg-brand-warm/10"
+            className="float-chip inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold text-brand-pearl"
           >
             <CalendarDays className="size-3.5 shrink-0 text-brand-warm" />
             Semaine
@@ -123,7 +123,7 @@ export function PrayerLayer() {
               </p>
               <div className="flex flex-wrap items-end justify-center gap-x-6 gap-y-2 md:justify-between">
                 <div className="text-left">
-                  <p className="text-4xl font-extrabold tracking-tight text-brand-pearl md:text-5xl">
+                  <p className="text-bronze-shine text-4xl font-extrabold tracking-tight md:text-5xl">
                     {next.label}
                   </p>
                   <p className="mt-1 text-2xl font-semibold text-brand-warm tabular-nums md:text-3xl">
@@ -139,7 +139,7 @@ export function PrayerLayer() {
           ) : null}
         </div>
 
-        <ul className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3">
+        <ul className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
           {slots.map((slot, index) => {
             const Icon = ICONS[slot.key];
             const nextIndex = next
@@ -157,10 +157,8 @@ export function PrayerLayer() {
               <li
                 key={slot.key}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-2xl border px-3 py-2.5 text-left",
-                  isNext
-                    ? "border-brand-gold-400/35 bg-brand-warm/10"
-                    : "border-brand-line/40 bg-brand-panel/70",
+                  "float-tile flex items-center gap-2.5 rounded-2xl px-3 py-3 text-left",
+                  isNext && "float-tile--active",
                   slot.secondary && !isNext && "opacity-70"
                 )}
               >

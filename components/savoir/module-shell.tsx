@@ -1,13 +1,27 @@
-import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+"use client";
 
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
+
+import { ModuleCelebrationModal } from "@/components/savoir/module-celebration-modal";
 import { PathProgress } from "@/components/savoir/story-ui";
 import { Button } from "@/components/ui/button";
+import { fireCelebrationConfetti } from "@/lib/confetti";
 import type { SavoirChapter } from "@/lib/savoir/types";
 import { cn } from "@/lib/utils";
 
+const DEFAULT_MODULE_TITLES: Record<string, string> = {
+  "/savoir/purification": "La Purification",
+  "/savoir/priere": "La Prière",
+  "/savoir/comportement": "Le Comportement Musulman",
+  "/savoir/jeune": "Le Jeûne & Ramadan",
+  "/savoir/zakat": "La Zakat",
+};
+
 type ModuleShellProps = {
   basePath: string;
+  moduleTitle?: string;
   chapters: SavoirChapter[];
   chapter: SavoirChapter;
   prev: SavoirChapter | null;
@@ -17,14 +31,17 @@ type ModuleShellProps = {
 
 export function ModuleShell({
   basePath,
+  moduleTitle,
   chapters,
   chapter,
   prev,
   next,
   children,
 }: ModuleShellProps) {
+  const [isCelebrationOpen, setIsCelebrationOpen] = useState(false);
   const index = chapters.findIndex((c) => c.id === chapter.id);
   const step = index + 1;
+  const resolvedTitle = moduleTitle || DEFAULT_MODULE_TITLES[basePath] || "Savoir";
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 gap-10 px-5 py-6 md:px-8 md:py-8 lg:px-10">
@@ -160,15 +177,28 @@ export function ModuleShell({
               </Link>
             </Button>
           ) : (
-            <Button asChild>
-              <Link href={basePath}>
-                Terminer le parcours
-                <Check className="size-4" />
-              </Link>
+            <Button
+              type="button"
+              onClick={() => {
+                fireCelebrationConfetti();
+                setIsCelebrationOpen(true);
+              }}
+              className="btn-bronze-shine shadow-lg"
+            >
+              Terminer le parcours
+              <Sparkles className="size-4 animate-pulse" />
             </Button>
           )}
         </footer>
       </div>
+
+      <ModuleCelebrationModal
+        isOpen={isCelebrationOpen}
+        onOpenChange={setIsCelebrationOpen}
+        moduleTitle={resolvedTitle}
+        basePath={basePath}
+        totalChapters={chapters.length}
+      />
     </main>
   );
 }

@@ -93,7 +93,7 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-4 px-1 py-2 text-center sm:gap-5 md:gap-7 md:py-3">
+    <div className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-3 px-1 py-0 text-center sm:gap-5 md:gap-7 md:py-3">
       <motion.div
         className="mx-auto max-w-2xl space-y-2.5 md:space-y-3"
         initial={false}
@@ -104,7 +104,7 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
         }
         transition={{ duration: 0.55, ease }}
       >
-        <span className="inline-flex items-center gap-2 rounded-full border border-brand-line/50 bg-brand-panel/60 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-brand-mist uppercase">
+        <span className="float-chip inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-brand-mist uppercase">
           <Boxes className="size-3.5 text-brand-steel-400" strokeWidth={2.2} />
           Apprentissage
         </span>
@@ -122,7 +122,7 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
         </p>
       </motion.div>
 
-      <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-6 lg:gap-4">
+      <ul className="grid grid-cols-2 gap-3 gap-y-5 sm:gap-4 sm:gap-y-6 lg:grid-cols-6 lg:gap-5 lg:gap-y-7">
         {MODULES.map((mod, index) => {
           const Icon = mod.icon;
           const wide = index < 2;
@@ -130,7 +130,10 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
           return (
             <motion.li
               key={mod.n}
-              className={cn(wide ? "lg:col-span-3" : "lg:col-span-2")}
+              className={cn(
+                "overflow-visible",
+                wide ? "lg:col-span-3" : "lg:col-span-2"
+              )}
               initial={false}
               animate={
                 active
@@ -150,21 +153,22 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
               <Link
                 href={mod.href}
                 className={cn(
-                  "group relative flex h-full min-h-[148px] flex-col overflow-hidden rounded-[1.25rem] border border-brand-line/40 bg-brand-panel/80 p-3.5 text-left transition-all duration-300 sm:min-h-[168px] sm:rounded-[1.5rem] sm:p-5 md:min-h-[190px] md:p-6",
-                  "hover:-translate-y-1 hover:border-brand-line/70 hover:bg-brand-panel-elevated/90",
-                  "shadow-[0_18px_40px_rgba(0,0,0,0.28)]"
+                  "float-tile group relative flex h-full min-h-[148px] flex-col rounded-[1.25rem] p-3.5 text-left transition-[transform,box-shadow,border-color] duration-300 sm:min-h-[168px] sm:rounded-[1.5rem] sm:p-5 md:min-h-[190px] md:p-6",
+                  "hover:-translate-y-1.5 hover:border-brand-gold-400/35"
                 )}
               >
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute right-2 bottom-0 select-none text-[4.5rem] leading-none font-extrabold tracking-tighter text-white/[0.04] sm:text-[5.5rem] md:text-[6.5rem]"
+                  className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
                 >
-                  {mod.n}
+                  <span className="absolute right-2 bottom-0 select-none text-[4.5rem] leading-none font-extrabold tracking-tighter text-white/[0.04] sm:text-[5.5rem] md:text-[6.5rem]">
+                    {mod.n}
+                  </span>
                 </span>
 
                 <span
                   className={cn(
-                    "relative flex size-9 items-center justify-center rounded-xl border sm:size-10 md:size-11",
+                    "relative flex size-9 items-center justify-center rounded-xl border shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:size-10 md:size-11",
                     mod.iconBg,
                     mod.iconBorder,
                     mod.accent
@@ -183,7 +187,7 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
 
                   <span className="mt-auto flex items-center gap-2 pt-4 text-[10px] font-semibold tracking-[0.14em] text-brand-steel-400 uppercase transition-colors duration-300 group-hover:text-brand-warm sm:gap-2.5 sm:pt-5 sm:text-[11px]">
                     Explorer
-                    <span className="flex size-6 items-center justify-center rounded-full border border-brand-line/50 bg-brand-night/40 transition-all duration-300 group-hover:border-brand-warm/40 group-hover:bg-brand-warm/10 sm:size-7">
+                    <span className="flex size-6 items-center justify-center rounded-full border border-brand-line/40 bg-brand-panel/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-300 group-hover:border-brand-warm/40 group-hover:bg-brand-warm/10 sm:size-7">
                       <ArrowRight className="size-3 transition-transform duration-300 group-hover:translate-x-0.5 sm:size-3.5" />
                     </span>
                   </span>

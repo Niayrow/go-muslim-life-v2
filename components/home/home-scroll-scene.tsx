@@ -1,23 +1,22 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-  useReducedMotion,
-} from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { Headphones } from "lucide-react";
 
 import { PrayerLayer } from "@/components/home/prayer-layer";
 import { QuickAccessLayer } from "@/components/home/quick-access";
 import { ModulesLayer } from "@/components/home/modules-section";
-import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
 type LayerId = "hero" | "prayer" | "quick" | "modules";
+
+const LAYERS: LayerId[] = ["hero", "prayer", "quick", "modules"];
+const PAGE_COUNT = LAYERS.length;
+const SNAP_LOCK_MS = 750;
+const WHEEL_THRESHOLD = 12;
+const TOUCH_THRESHOLD = 48;
 
 function HeroScrollHint({
   onClick,
@@ -100,7 +99,7 @@ function HeroScrollHint({
 
 function HeroLayer() {
   return (
-    <div className="flex max-w-4xl flex-col items-center gap-8 text-center md:gap-10">
+    <div className="flex max-w-4xl flex-col items-center gap-5 text-center sm:gap-7 md:gap-10">
       <p
         className="hero-bismillah-gradient font-arabic text-3xl leading-relaxed sm:text-4xl md:text-5xl lg:text-6xl"
         dir="rtl"
@@ -143,7 +142,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 function AmbientBg() {
   return (
-    <div className="pointer-events-none absolute inset-0 -z-10">
+    <div className="pointer-events-none absolute inset-0 z-0">
       <div className="absolute top-1/4 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-warm/10 blur-[100px] md:h-[28rem] md:w-[28rem]" />
       <div className="absolute right-1/4 bottom-1/4 h-56 w-56 rounded-full bg-brand-steel-400/10 blur-[90px]" />
     </div>
@@ -251,197 +250,212 @@ function MobileHomeFlow() {
   );
 }
 
-function DesktopStickyScene() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [activeLayer, setActiveLayer] = useState<LayerId>("hero");
+function StickyScrollScene() {
+  const [page, setPage] = useState(0);
+  const pageRef = useRef(0);
+  const lockedRef = useRef(false);
+  const lockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
+  const activeLayer = LAYERS[page] ?? "hero";
 
-  useMotionValueEvent(scrollYProgress, "change", (value) => {
-    if (value > 0.72) setActiveLayer("modules");
-    else if (value > 0.45) setActiveLayer("quick");
-    else if (value > 0.2) setActiveLayer("prayer");
-    else setActiveLayer("hero");
-  });
+  const goToPage = (next: number) => {
+    const clamped = Math.max(0, Math.min(PAGE_COUNT - 1, next));
+    if (clamped === pageRef.current || lockedRef.current) return;
 
-  const heroOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.08, 0.2, 1],
-    [1, 1, 0, 0]
-  );
-  const heroScale = useTransform(
-    scrollYProgress,
-    [0, 0.2, 1],
-    [1, 0.98, 0.98]
-  );
+    lockedRef.current = true;
+    pageRef.current = clamped;
+    setPage(clamped);
 
-  const prayerOpacity = useTransform(
-    scrollYProgress,
-    [0.08, 0.2, 0.32, 0.42, 0.52, 1],
-    [0, 1, 1, 1, 0, 0]
-  );
-  const prayerScale = useTransform(
-    scrollYProgress,
-    [0.08, 0.2, 0.42, 0.52],
-    [0.98, 1, 1, 0.98]
-  );
+    if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
+    lockTimerRef.current = setTimeout(() => {
+      lockedRef.current = false;
+      lockTimerRef.current = null;
+    }, SNAP_LOCK_MS);
+  };
 
-  const quickOpacity = useTransform(
-    scrollYProgress,
-    [0.42, 0.52, 0.62, 0.72, 0.82, 1],
-    [0, 1, 1, 1, 0, 0]
-  );
-  const quickScale = useTransform(
-    scrollYProgress,
-    [0.42, 0.52, 0.72, 0.82],
-    [0.98, 1, 1, 0.98]
-  );
+  const stepPage = (direction: 1 | -1) => {
+    goToPage(pageRef.current + direction);
+  };
 
-  const modulesOpacity = useTransform(
-    scrollYProgress,
-    [0.72, 0.82, 0.9, 1],
-    [0, 1, 1, 1]
-  );
-  const modulesScale = useTransform(
-    scrollYProgress,
-    [0.72, 0.82, 1],
-    [0.98, 1, 1]
-  );
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
-  const prayerVeilOpacity = useTransform(
-    scrollYProgress,
-    [0.06, 0.18, 0.42, 0.52],
-    [0, 0.97, 0.97, 0.97]
-  );
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      if (Math.abs(event.deltaY) < WHEEL_THRESHOLD) return;
+      stepPage(event.deltaY > 0 ? 1 : -1);
+    };
 
-  const quickVeilOpacity = useTransform(
-    scrollYProgress,
-    [0.4, 0.5, 0.72, 0.82],
-    [0, 0.97, 0.97, 0.97]
-  );
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
 
-  const modulesVeilOpacity = useTransform(
-    scrollYProgress,
-    [0.7, 0.8, 1],
-    [0, 0.97, 0.97]
-  );
+      if (
+        event.key === "ArrowDown" ||
+        event.key === "PageDown" ||
+        (event.key === " " && !event.shiftKey)
+      ) {
+        event.preventDefault();
+        stepPage(1);
+      } else if (
+        event.key === "ArrowUp" ||
+        event.key === "PageUp" ||
+        (event.key === " " && event.shiftKey)
+      ) {
+        event.preventDefault();
+        stepPage(-1);
+      }
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      touchStartY.current = event.touches[0]?.clientY ?? null;
+    };
+
+    const onTouchEnd = (event: TouchEvent) => {
+      if (touchStartY.current == null) return;
+      const endY = event.changedTouches[0]?.clientY;
+      const startY = touchStartY.current;
+      touchStartY.current = null;
+      if (endY == null) return;
+
+      const delta = startY - endY;
+      if (Math.abs(delta) < TOUCH_THRESHOLD) return;
+      stepPage(delta > 0 ? 1 : -1);
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, []);
+
+  const layerTransition = { duration: 0.65, ease };
+
+  const layerShellClass =
+    "pointer-events-none absolute inset-0 z-[1] flex items-stretch justify-start px-4 pt-[4.25rem] pb-[calc(4.35rem+env(safe-area-inset-bottom)+0.5rem)] sm:px-5 md:items-center md:justify-center md:px-8 md:pt-6 md:pb-6";
 
   return (
-    <div ref={containerRef} className="relative h-[400vh] w-full">
-      <div className="sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden px-4 sm:px-5 md:px-8">
-        <AmbientBg />
+    <div className="relative h-dvh w-full overflow-hidden">
+      <AmbientBg />
 
-        <div className="relative h-full w-full touch-pan-y">
-          <motion.div
-            className="pointer-events-none absolute inset-0 flex items-center justify-center"
-            style={{
-              opacity: heroOpacity,
-              scale: heroScale,
-              zIndex: 1,
-            }}
+      <div className="relative h-full w-full touch-none">
+        <motion.div
+          className={cn(layerShellClass, "z-[1]")}
+          initial={false}
+          animate={{
+            opacity: activeLayer === "hero" ? 1 : 0,
+            scale: activeLayer === "hero" ? 1 : 0.98,
+          }}
+          transition={layerTransition}
+        >
+          <div
+            className={cn(
+              "relative flex h-full w-full max-w-6xl flex-col items-center justify-start pt-6 md:justify-center md:pt-0",
+              activeLayer === "hero"
+                ? "pointer-events-auto"
+                : "pointer-events-none"
+            )}
           >
-            <div
-              className={
-                activeLayer === "hero"
-                  ? "pointer-events-auto"
-                  : "pointer-events-none"
-              }
-            >
-              <HeroLayer />
-            </div>
+            <HeroLayer />
 
             <div
               className={cn(
-                "absolute inset-x-0 bottom-8 flex justify-center md:bottom-10",
+                "absolute inset-x-0 bottom-2 flex justify-center md:bottom-4",
                 activeLayer === "hero"
                   ? "pointer-events-auto"
                   : "pointer-events-none"
               )}
             >
-              <HeroScrollHint
-                onClick={() => {
-                  const el = containerRef.current;
-                  if (!el) return;
-                  const target =
-                    window.scrollY + el.getBoundingClientRect().height * 0.22;
-                  window.scrollTo({ top: target, behavior: "smooth" });
-                }}
-              />
+              <HeroScrollHint onClick={() => goToPage(1)} />
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
 
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-center"
-            style={{
-              opacity: prayerOpacity,
-              scale: prayerScale,
-            }}
+        <motion.div
+          className={cn(layerShellClass, "z-[2]")}
+          initial={false}
+          animate={{
+            opacity: activeLayer === "prayer" ? 1 : 0,
+            scale: activeLayer === "prayer" ? 1 : 0.98,
+          }}
+          transition={layerTransition}
+        >
+          <div
+            className={cn(
+              "mx-auto flex h-full w-full max-w-6xl items-start justify-center md:items-center",
+              activeLayer === "prayer"
+                ? "pointer-events-auto"
+                : "pointer-events-none"
+            )}
           >
-            <motion.div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 bg-brand-night"
-              style={{ opacity: prayerVeilOpacity }}
-            />
-            <div
-              className={
-                activeLayer === "prayer"
-                  ? "pointer-events-auto relative z-[1] w-full"
-                  : "pointer-events-none relative z-[1] w-full"
-              }
-            >
-              <PrayerLayer />
-            </div>
-          </motion.div>
+            <PrayerLayer />
+          </div>
+        </motion.div>
 
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-[3] flex items-center justify-center"
-            style={{
-              opacity: quickOpacity,
-              scale: quickScale,
-            }}
+        <motion.div
+          className={cn(layerShellClass, "z-[3]")}
+          initial={false}
+          animate={{
+            opacity: activeLayer === "quick" ? 1 : 0,
+            scale: activeLayer === "quick" ? 1 : 0.98,
+          }}
+          transition={layerTransition}
+        >
+          <div
+            className={cn(
+              "h-full w-full max-w-6xl overflow-y-auto overscroll-contain px-1",
+              activeLayer === "quick"
+                ? "pointer-events-auto"
+                : "pointer-events-none"
+            )}
           >
-            <motion.div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 bg-brand-night"
-              style={{ opacity: quickVeilOpacity }}
-            />
-            <div
-              className={
-                activeLayer === "quick"
-                  ? "pointer-events-auto relative z-[1] w-full"
-                  : "pointer-events-none relative z-[1] w-full"
-              }
-            >
+            <div className="flex min-h-full w-full items-start justify-center md:items-center">
               <QuickAccessLayer active={activeLayer === "quick"} />
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
 
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-[4] flex items-center justify-center"
-            style={{
-              opacity: modulesOpacity,
-              scale: modulesScale,
-            }}
+        <motion.div
+          className={cn(layerShellClass, "z-[4]")}
+          initial={false}
+          animate={{
+            opacity: activeLayer === "modules" ? 1 : 0,
+            scale: activeLayer === "modules" ? 1 : 0.98,
+          }}
+          transition={layerTransition}
+        >
+          <div
+            className={cn(
+              "h-full w-full max-w-6xl overflow-y-auto overscroll-contain px-1",
+              activeLayer === "modules"
+                ? "pointer-events-auto"
+                : "pointer-events-none"
+            )}
           >
-            <motion.div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 bg-brand-night"
-              style={{ opacity: modulesVeilOpacity }}
-            />
-            <div
-              className={
-                activeLayer === "modules"
-                  ? "pointer-events-auto relative z-[1] w-full"
-                  : "pointer-events-none relative z-[1] w-full"
-              }
-            >
+            <div className="flex min-h-full w-full items-start justify-center md:items-center">
               <ModulesLayer active={activeLayer === "modules"} />
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
@@ -449,12 +463,11 @@ function DesktopStickyScene() {
 
 export function HomeScrollScene() {
   const reduceMotion = useReducedMotion();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  // Mobile (et reduced motion) : stack + apparitions. Desktop : sticky crossfade.
-  if (reduceMotion || !isDesktop) {
+  // Reduced motion : stack + apparitions. Sinon : snap 1 geste = 1 page.
+  if (reduceMotion) {
     return <MobileHomeFlow />;
   }
 
-  return <DesktopStickyScene />;
+  return <StickyScrollScene />;
 }
