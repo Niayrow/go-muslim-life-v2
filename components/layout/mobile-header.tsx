@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { PrayerNavInset } from "@/components/prayer/prayer-nav-inset";
 
 export function MobileHeader() {
@@ -9,10 +10,10 @@ export function MobileHeader() {
     <header className="shell-mobile-only mobile-header-chrome sticky top-3 z-30 mx-3 mt-3">
       <div className="flex h-14 items-center justify-between px-1">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-xl bg-brand-warm/15 text-xs font-extrabold text-brand-warm">
-            G
+          <span className="relative size-8 shrink-0 overflow-hidden rounded-full ring-1 ring-brand-gold-400/25">
+            <BrandLogo size={32} priority />
           </span>
-          <span className="text-sm font-bold tracking-tight text-brand-pearl">
+          <span className="nav-brand-shine text-sm font-bold tracking-tight">
             GoMuslimLife
           </span>
         </Link>

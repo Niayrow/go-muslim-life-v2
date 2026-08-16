@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { isNavActive, PRIMARY_NAV } from "@/components/layout/nav-items";
 import {
   PrayerNavInset,
@@ -26,10 +27,10 @@ export function DeskNav() {
             href="/"
             className="relative z-10 flex shrink-0 items-center gap-2.5 rounded-xl px-1.5 py-1 transition-colors hover:bg-white/5"
           >
-            <span className="flex size-8 items-center justify-center rounded-lg bg-brand-warm/15 text-sm font-extrabold text-brand-warm">
-              G
+            <span className="relative size-8 shrink-0 overflow-hidden rounded-full ring-1 ring-brand-gold-400/25">
+              <BrandLogo size={32} priority />
             </span>
-            <span className="text-[15px] font-bold tracking-tight text-brand-pearl">
+            <span className="nav-brand-shine text-[15px] font-bold tracking-tight">
               GoMuslimLife
             </span>
           </Link>

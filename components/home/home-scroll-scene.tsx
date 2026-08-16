@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Headphones } from "lucide-react";
 
 import { PrayerLayer } from "@/components/home/prayer-layer";
 import { QuickAccessLayer } from "@/components/home/quick-access";
 import { ModulesLayer } from "@/components/home/modules-section";
+import { SawraHeroCta } from "@/components/home/sawra-hero-cta";
 import { HomeSearchBar } from "@/components/search/home-search-bar";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +23,50 @@ const PAGE_COUNT = LAYERS.length;
 const LAYER_DURATION_S = 1.05;
 const SNAP_LOCK_MS = 1100;
 const WHEEL_THRESHOLD = 12;
-const TOUCH_THRESHOLD = 48;
+const TOUCH_THRESHOLD = 56;
+const MOBILE_PAGE_MS = 280;
+
+const MOBILE_LAYOUT_MQ = "(max-width: 767px)";
+
+function subscribeMobileLayout(onChange: () => void) {
+  const mq = window.matchMedia(MOBILE_LAYOUT_MQ);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+function getMobileLayoutSnapshot() {
+  return window.matchMedia(MOBILE_LAYOUT_MQ).matches;
+}
+
+function getMobileLayoutServerSnapshot() {
+  return true;
+}
+
+function useIsMobileLayout() {
+  return useSyncExternalStore(
+    subscribeMobileLayout,
+    getMobileLayoutSnapshot,
+    getMobileLayoutServerSnapshot
+  );
+}
+
+function findScrollableParent(target: EventTarget | null): HTMLElement | null {
+  let node = target instanceof HTMLElement ? target : null;
+  while (node && node !== document.body) {
+    if (node.dataset.snapScroll === "true") {
+      if (node.scrollHeight > node.clientHeight + 8) return node;
+    }
+    const { overflowY } = window.getComputedStyle(node);
+    if (
+      (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") &&
+      node.scrollHeight > node.clientHeight + 8
+    ) {
+      return node;
+    }
+    node = node.parentElement;
+  }
+  return null;
+}
 
 /** Vitesses parallax (px par “page”) — loin = lent, près = rapide. */
 const PARALLAX = {
@@ -38,22 +80,25 @@ const PARALLAX = {
 function HeroScrollHint({
   onClick,
   className,
+  lite = false,
 }: {
   onClick?: () => void;
   className?: string;
+  lite?: boolean;
 }) {
   const reduceMotion = useReducedMotion();
+  const staticHint = Boolean(reduceMotion || lite);
 
   return (
     <motion.button
       type="button"
       aria-label="Défiler vers le bas"
       onClick={onClick}
-      initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+      initial={staticHint ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.9, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ delay: staticHint ? 0 : 0.9, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        "group relative flex flex-col items-center gap-3 outline-none",
+        "group relative flex flex-col items-center gap-2.5 outline-none",
         className
       )}
     >
@@ -62,15 +107,15 @@ function HeroScrollHint({
       </span>
 
       {/* Souris élégante */}
-      <span className="relative flex h-11 w-7 items-start justify-center rounded-full border border-brand-gold-400/45 bg-brand-panel/30 shadow-[0_0_24px_rgba(206,166,135,0.18)] backdrop-blur-sm">
+      <span className="relative flex h-9 w-6 items-start justify-center rounded-full border border-brand-gold-400/45 bg-brand-panel/30 shadow-[0_0_24px_rgba(206,166,135,0.18)]">
         <motion.span
           aria-hidden
-          className="mt-2 h-1.5 w-1 rounded-full bg-brand-warm"
+          className="mt-1.5 h-1.5 w-1 rounded-full bg-brand-warm"
           animate={
-            reduceMotion
+            staticHint
               ? undefined
               : {
-                  y: [0, 10, 0],
+                  y: [0, 8, 0],
                   opacity: [1, 0.35, 1],
                 }
           }
@@ -87,23 +132,23 @@ function HeroScrollHint({
       </span>
 
       {/* Chevrons cascade */}
-      <span className="relative flex h-8 w-6 flex-col items-center">
+      <span className="relative flex h-6 w-5 flex-col items-center">
         {[0, 1].map((i) => (
           <motion.span
             key={i}
             aria-hidden
-            className="absolute left-1/2 top-0 -ml-[5px] h-2.5 w-2.5 rotate-45 border-r border-b border-brand-gold-400/70"
+            className="absolute top-0 left-1/2 -ml-[4px] h-2 w-2 rotate-45 border-r border-b border-brand-gold-400/70"
             animate={
-              reduceMotion
-                ? undefined
+              staticHint
+                ? { y: i * 5, opacity: 0.7 }
                 : {
-                    y: [0, 10],
+                    y: [0, 8],
                     opacity: [0.15, 0.95, 0.15],
                   }
             }
             transition={{
               duration: 1.55,
-              repeat: Infinity,
+              repeat: staticHint ? 0 : Infinity,
               ease: "easeInOut",
               delay: i * 0.22,
             }}
@@ -117,38 +162,40 @@ function HeroScrollHint({
 function HeroLayer({
   offset = 0,
   active = true,
+  plain = false,
 }: {
   offset?: number;
   active?: boolean;
+  plain?: boolean;
 }) {
   return (
-    <div className="flex max-w-4xl flex-col items-center gap-5 text-center sm:gap-7 md:gap-10">
-      <ParallaxReveal offset={offset} depth={0.45} active={active} index={0}>
+    <div className="flex max-w-4xl flex-col items-center gap-4 text-center sm:gap-5 md:gap-7">
+      <ParallaxReveal plain={plain} offset={offset} depth={0.45} active={active} index={0}>
         <p
-          className="hero-bismillah-gradient font-arabic text-3xl leading-relaxed sm:text-4xl md:text-5xl lg:text-6xl"
+          className="hero-bismillah-gradient font-arabic text-2xl leading-normal sm:text-[1.75rem] md:text-3xl lg:text-[2rem]"
           dir="rtl"
         >
           بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
         </p>
       </ParallaxReveal>
 
-      <ParallaxReveal offset={offset} depth={0.7} active={active} index={1}>
+      <ParallaxReveal plain={plain} offset={offset} depth={0.7} active={active} index={1}>
         <div className="h-px w-16 bg-gradient-to-r from-transparent via-brand-gold-400/60 to-transparent md:w-24" />
       </ParallaxReveal>
 
-      <ParallaxReveal offset={offset} depth={1} active={active} index={2}>
+      <ParallaxReveal plain={plain} offset={offset} depth={1} active={active} index={2}>
         <h1 className="hero-title-gradient text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
           GoMuslimLife
         </h1>
       </ParallaxReveal>
 
-      <ParallaxReveal offset={offset} depth={1.25} active={active} index={3}>
+      <ParallaxReveal plain={plain} offset={offset} depth={1.25} active={active} index={3}>
         <h2 className="max-w-2xl text-xl font-bold tracking-tight text-brand-pearl/90 sm:text-2xl md:text-3xl">
           Apprenez et Apaisez votre Cœur.
         </h2>
       </ParallaxReveal>
 
-      <ParallaxReveal offset={offset} depth={1.45} active={active} index={4}>
+      <ParallaxReveal plain={plain} offset={offset} depth={1.45} active={active} index={4}>
         <p className="max-w-xl text-base text-brand-mist sm:text-lg md:text-xl">
           Découvrez la vie des{" "}
           <span className="hero-word-halo font-semibold text-brand-warm">
@@ -159,6 +206,7 @@ function HeroLayer({
       </ParallaxReveal>
 
       <ParallaxReveal
+        plain={plain}
         offset={offset}
         depth={1.55}
         active={active}
@@ -168,16 +216,8 @@ function HeroLayer({
         <HomeSearchBar />
       </ParallaxReveal>
 
-      <ParallaxReveal offset={offset} depth={1.7} active={active} index={6}>
-        <Link
-          href="/sawra"
-          className="btn-bronze-shine group inline-flex max-w-full items-center justify-center gap-2.5 rounded-2xl px-5 py-3.5 text-sm font-bold sm:px-7 sm:py-4 sm:text-[15px]"
-        >
-          <Headphones className="size-4 shrink-0 opacity-90 transition-transform duration-300 group-hover:scale-110" />
-          <span className="text-balance">
-            Écouter le Coran et bien plus encore avec Sawra
-          </span>
-        </Link>
+      <ParallaxReveal plain={plain} offset={offset} depth={1.7} active={active} index={6}>
+        <SawraHeroCta />
       </ParallaxReveal>
     </div>
   );
@@ -199,6 +239,7 @@ function ParallaxReveal({
   index,
   children,
   className,
+  plain = false,
 }: {
   offset: number;
   depth: number;
@@ -206,7 +247,12 @@ function ParallaxReveal({
   index: number;
   children: React.ReactNode;
   className?: string;
+  plain?: boolean;
 }) {
+  if (plain) {
+    return <div className={className}>{children}</div>;
+  }
+
   const parallaxY = offset * PARALLAX.content * depth;
 
   return (
@@ -264,7 +310,15 @@ function layerMotion(layerIndex: number, page: number) {
   };
 }
 
-function AmbientBg({ page = 0 }: { page?: number }) {
+function AmbientBg({ page = 0, staticBg = false }: { page?: number; staticBg?: boolean }) {
+  if (staticBg) {
+    return (
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-[18%] left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-brand-warm/10 blur-[64px]" />
+        <div className="absolute right-[8%] bottom-[18%] h-48 w-48 rounded-full bg-brand-steel-400/10 blur-[48px]" />
+      </div>
+    );
+  }
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
       {/* Plan lointain — presque immobile */}
@@ -320,14 +374,14 @@ function MobileRevealSection({
     <motion.section
       ref={sectionRef}
       className={cn(
-        "relative flex w-full flex-col items-center justify-center px-4 py-12",
+        "relative flex w-full flex-col items-center justify-center",
         className
       )}
       viewport={{ amount, once: true, margin: "0px 0px -8% 0px" }}
       onViewportEnter={() => setActive(true)}
     >
       <motion.div
-        className="w-full"
+        className="flex w-full flex-col items-center justify-center"
         initial={false}
         animate={
           active || reduceMotion
@@ -350,62 +404,247 @@ function MobileHomeFlow() {
       <AmbientBg />
 
       <MobileRevealSection
-        className="relative min-h-[88dvh]"
+        className="relative flex min-h-[88dvh] flex-col items-center justify-center gap-6 px-4 pb-28 pt-10"
         amount={0.2}
         forceActive
       >
         {() => (
           <>
             <HeroLayer />
-            <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center sm:bottom-8">
-              <div className="pointer-events-auto">
-                <HeroScrollHint
-                  onClick={() =>
-                    prayerRef.current?.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    })
-                  }
-                />
-              </div>
-            </div>
+            <HeroScrollHint
+              onClick={() =>
+                prayerRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                })
+              }
+            />
           </>
         )}
       </MobileRevealSection>
 
       <MobileRevealSection
-        className="min-h-[90dvh]"
+        className="min-h-[90dvh] px-4 py-12"
         amount={0.3}
         sectionRef={prayerRef}
       >
-        {(active) => (
-          <motion.div
-            initial={false}
-            animate={active ? { opacity: 1 } : { opacity: 0.4 }}
-            transition={{ duration: 0.4 }}
-          >
-            <PrayerLayer active={active} />
-          </motion.div>
-        )}
+        {(active) => <PrayerLayer active={active} />}
       </MobileRevealSection>
 
-      <MobileRevealSection className="py-14" amount={0.25}>
+      <MobileRevealSection className="px-4 py-14" amount={0.25}>
         {(active) => <QuickAccessLayer active={active} />}
       </MobileRevealSection>
 
-      <MobileRevealSection className="py-14 pb-20" amount={0.2}>
+      <MobileRevealSection
+        className="px-4 py-14 pb-[calc(5rem+env(safe-area-inset-bottom))]"
+        amount={0.2}
+      >
         {(active) => <ModulesLayer active={active} />}
       </MobileRevealSection>
     </div>
   );
 }
 
-function StickyScrollScene() {
+function MobilePageShell({
+  active,
+  children,
+  scrollable = false,
+}: {
+  active: boolean;
+  children: React.ReactNode;
+  scrollable?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "absolute inset-0 flex items-center justify-center px-4 pt-[4.75rem] pb-[calc(5.25rem+env(safe-area-inset-bottom))]",
+        active ? "z-[1]" : "pointer-events-none z-0"
+      )}
+      aria-hidden={!active}
+      style={{
+        opacity: active ? 1 : 0,
+        visibility: active ? "visible" : "hidden",
+      }}
+    >
+      <div
+        data-snap-scroll={scrollable ? "true" : undefined}
+        className={cn(
+          "flex h-full w-full max-w-6xl items-center justify-center",
+          scrollable && "overflow-y-auto overscroll-contain"
+        )}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** Mobile : 1 page visible, sans parallax / scale / blur animé (cause du lag). */
+function MobileSnapPager() {
   const [page, setPage] = useState(0);
+  const [visited, setVisited] = useState(() => new Set([0]));
   const pageRef = useRef(0);
   const lockedRef = useRef(false);
   const lockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchStartY = useRef<number | null>(null);
+  const touchScrollable = useRef<HTMLElement | null>(null);
+
+  const goToPage = (next: number) => {
+    const clamped = Math.max(0, Math.min(PAGE_COUNT - 1, next));
+    if (clamped === pageRef.current || lockedRef.current) return;
+
+    lockedRef.current = true;
+    pageRef.current = clamped;
+    setVisited((prev) => {
+      if (prev.has(clamped)) return prev;
+      const nextSet = new Set(prev);
+      nextSet.add(clamped);
+      return nextSet;
+    });
+    setPage(clamped);
+
+    if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
+    lockTimerRef.current = setTimeout(() => {
+      lockedRef.current = false;
+      lockTimerRef.current = null;
+    }, MOBILE_PAGE_MS);
+  };
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length !== 1) {
+        touchStartY.current = null;
+        return;
+      }
+      touchStartY.current = event.touches[0]?.clientY ?? null;
+      const node = event.target instanceof HTMLElement ? event.target : null;
+      touchScrollable.current =
+        node?.closest<HTMLElement>("[data-snap-scroll='true']") ?? null;
+    };
+
+    const onTouchEnd = (event: TouchEvent) => {
+      if (touchStartY.current == null || lockedRef.current) {
+        touchStartY.current = null;
+        return;
+      }
+
+      const endY = event.changedTouches[0]?.clientY;
+      const startY = touchStartY.current;
+      const scrollable = touchScrollable.current;
+      touchStartY.current = null;
+      touchScrollable.current = null;
+      if (endY == null) return;
+
+      const delta = startY - endY;
+      if (Math.abs(delta) < TOUCH_THRESHOLD) return;
+
+      if (scrollable && scrollable.scrollHeight > scrollable.clientHeight + 8) {
+        const atTop = scrollable.scrollTop <= 0;
+        const atBottom =
+          scrollable.scrollTop + scrollable.clientHeight >=
+          scrollable.scrollHeight - 2;
+        if (delta > 0 && !atBottom) return;
+        if (delta < 0 && !atTop) return;
+      }
+
+      goToPage(pageRef.current + (delta > 0 ? 1 : -1));
+    };
+
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, []);
+
+  return (
+    <div className="relative h-dvh w-full overflow-hidden">
+      <AmbientBg staticBg />
+
+      {visited.has(0) ? (
+        <MobilePageShell active={page === 0}>
+          <div className="flex flex-col items-center justify-center gap-5">
+            <HeroLayer active={page === 0} />
+            <ParallaxReveal
+              offset={0}
+              depth={1.9}
+              active={page === 0}
+              index={7}
+            >
+              <HeroScrollHint onClick={() => goToPage(1)} />
+            </ParallaxReveal>
+          </div>
+        </MobilePageShell>
+      ) : null}
+
+      {visited.has(1) ? (
+        <MobilePageShell active={page === 1}>
+          <PrayerLayer active={page === 1} />
+        </MobilePageShell>
+      ) : null}
+
+      {visited.has(2) ? (
+        <MobilePageShell active={page === 2} scrollable>
+          <QuickAccessLayer active={page === 2} />
+        </MobilePageShell>
+      ) : null}
+
+      {visited.has(3) ? (
+        <MobilePageShell active={page === 3} scrollable>
+          <ModulesLayer active={page === 3} />
+        </MobilePageShell>
+      ) : null}
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-[calc(4.85rem+env(safe-area-inset-bottom))] z-20 flex justify-center">
+        <nav
+          aria-label="Sections de l’accueil"
+          className="pointer-events-auto flex items-center gap-2 rounded-full border border-brand-line/30 bg-brand-panel/70 px-3 py-2"
+        >
+          {LAYERS.map((id, index) => {
+            const active = index === page;
+            return (
+              <button
+                key={id}
+                type="button"
+                aria-label={`Aller à ${LAYER_LABELS[id]}`}
+                aria-current={active ? "page" : undefined}
+                onClick={() => goToPage(index)}
+                className="flex h-5 w-5 items-center justify-center outline-none"
+              >
+                <span
+                  className={cn(
+                    "block rounded-full transition-all duration-200",
+                    active
+                      ? "h-2 w-5 bg-brand-warm"
+                      : "h-2 w-2 bg-brand-gold-400/45"
+                  )}
+                />
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+function StickyScrollScene() {
+  const [page, setPage] = useState(0);
+  const [paging, setPaging] = useState(false);
+  const pageRef = useRef(0);
+  const lockedRef = useRef(false);
+  const lockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchScrollable = useRef<HTMLElement | null>(null);
+  const touchArmed = useRef(false);
 
   const activeLayer = LAYERS[page] ?? "hero";
 
@@ -414,12 +653,14 @@ function StickyScrollScene() {
     if (clamped === pageRef.current || lockedRef.current) return;
 
     lockedRef.current = true;
+    setPaging(true);
     pageRef.current = clamped;
     setPage(clamped);
 
     if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
     lockTimerRef.current = setTimeout(() => {
       lockedRef.current = false;
+      setPaging(false);
       lockTimerRef.current = null;
     }, SNAP_LOCK_MS);
   };
@@ -429,8 +670,17 @@ function StickyScrollScene() {
   };
 
   useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
+    const scrollY = window.scrollY;
+    const previous = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      width: document.body.style.width,
+    };
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
 
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
@@ -468,33 +718,108 @@ function StickyScrollScene() {
     };
 
     const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length !== 1) {
+        touchStartY.current = null;
+        touchArmed.current = false;
+        return;
+      }
       touchStartY.current = event.touches[0]?.clientY ?? null;
+      touchStartX.current = event.touches[0]?.clientX ?? null;
+      touchScrollable.current = findScrollableParent(event.target);
+      touchArmed.current = true;
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (!touchArmed.current || touchStartY.current == null) return;
+      if (lockedRef.current) {
+        event.preventDefault();
+        return;
+      }
+
+      const y = event.touches[0]?.clientY;
+      const x = event.touches[0]?.clientX;
+      if (y == null || x == null || touchStartX.current == null) return;
+
+      const dy = touchStartY.current - y;
+      const dx = touchStartX.current - x;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        touchArmed.current = false;
+        return;
+      }
+
+      const scrollable = touchScrollable.current;
+      if (scrollable) {
+        const atTop = scrollable.scrollTop <= 0;
+        const atBottom =
+          scrollable.scrollTop + scrollable.clientHeight >=
+          scrollable.scrollHeight - 2;
+        if (dy > 0 && !atBottom) return;
+        if (dy < 0 && !atTop) return;
+      }
+
+      if (Math.abs(dy) > 10) {
+        event.preventDefault();
+      }
     };
 
     const onTouchEnd = (event: TouchEvent) => {
-      if (touchStartY.current == null) return;
+      if (!touchArmed.current || touchStartY.current == null) {
+        touchStartY.current = null;
+        touchArmed.current = false;
+        return;
+      }
+
       const endY = event.changedTouches[0]?.clientY;
       const startY = touchStartY.current;
+      const scrollable = touchScrollable.current;
       touchStartY.current = null;
-      if (endY == null) return;
+      touchStartX.current = null;
+      touchScrollable.current = null;
+      touchArmed.current = false;
+      if (endY == null || lockedRef.current) return;
 
       const delta = startY - endY;
       if (Math.abs(delta) < TOUCH_THRESHOLD) return;
+
+      if (scrollable) {
+        const atTop = scrollable.scrollTop <= 0;
+        const atBottom =
+          scrollable.scrollTop + scrollable.clientHeight >=
+          scrollable.scrollHeight - 2;
+        if (delta > 0 && !atBottom) return;
+        if (delta < 0 && !atTop) return;
+      }
+
       stepPage(delta > 0 ? 1 : -1);
+    };
+
+    const onTouchCancel = () => {
+      touchStartY.current = null;
+      touchStartX.current = null;
+      touchScrollable.current = null;
+      touchArmed.current = false;
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", onTouchCancel);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previous.overflow;
+      document.body.style.position = previous.position;
+      document.body.style.top = previous.top;
+      document.body.style.width = previous.width;
+      window.scrollTo(0, scrollY);
       if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchCancel);
     };
   }, []);
 
@@ -505,24 +830,30 @@ function StickyScrollScene() {
   };
 
   const layerShellClass =
-    "pointer-events-none absolute inset-0 z-[1] flex will-change-transform items-stretch justify-start px-4 pt-[4.25rem] pb-[calc(4.35rem+env(safe-area-inset-bottom)+0.5rem)] sm:px-5 md:items-center md:justify-center md:px-8 md:pt-6 md:pb-6";
+    "pointer-events-none absolute inset-0 z-[1] flex items-center justify-center px-4 pt-[4.75rem] pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:px-5 md:px-8 md:pt-[6.5rem] md:pb-8";
 
   const offsets = LAYERS.map((_, index) => index - page);
 
   return (
-    <div className="relative h-dvh w-full overflow-hidden [perspective:1200px]">
+    <div
+      className={cn(
+        "relative h-dvh w-full overflow-hidden",
+        paging && "home-paging"
+      )}
+    >
       <AmbientBg page={page} />
 
-      <div className="relative h-full w-full touch-none">
+      <div className="relative h-full w-full">
         <motion.div
           className={cn(layerShellClass, "z-[1]")}
           initial={false}
           animate={layerMotion(0, page)}
           transition={layerTransition}
+          aria-hidden={activeLayer !== "hero"}
         >
           <div
             className={cn(
-              "relative flex h-full w-full max-w-6xl flex-col items-center justify-start pt-6 md:justify-center md:pt-0",
+              "relative flex h-full w-full max-w-6xl flex-col items-center justify-center gap-5",
               activeLayer === "hero"
                 ? "pointer-events-auto"
                 : "pointer-events-none"
@@ -532,24 +863,14 @@ function StickyScrollScene() {
               offset={offsets[0] ?? 0}
               active={activeLayer === "hero"}
             />
-
-            <div
-              className={cn(
-                "absolute inset-x-0 bottom-2 flex justify-center md:bottom-4",
-                activeLayer === "hero"
-                  ? "pointer-events-auto"
-                  : "pointer-events-none"
-              )}
+            <ParallaxReveal
+              offset={offsets[0] ?? 0}
+              depth={1.9}
+              active={activeLayer === "hero"}
+              index={7}
             >
-              <ParallaxReveal
-                offset={offsets[0] ?? 0}
-                depth={1.9}
-                active={activeLayer === "hero"}
-                index={7}
-              >
-                <HeroScrollHint onClick={() => goToPage(1)} />
-              </ParallaxReveal>
-            </div>
+              <HeroScrollHint onClick={() => goToPage(1)} />
+            </ParallaxReveal>
           </div>
         </motion.div>
 
@@ -558,10 +879,11 @@ function StickyScrollScene() {
           initial={false}
           animate={layerMotion(1, page)}
           transition={layerTransition}
+          aria-hidden={activeLayer !== "prayer"}
         >
           <div
             className={cn(
-              "mx-auto flex h-full w-full max-w-6xl items-start justify-center md:items-center",
+              "mx-auto flex h-full w-full max-w-6xl items-center justify-center",
               activeLayer === "prayer"
                 ? "pointer-events-auto"
                 : "pointer-events-none"
@@ -578,16 +900,18 @@ function StickyScrollScene() {
           initial={false}
           animate={layerMotion(2, page)}
           transition={layerTransition}
+          aria-hidden={activeLayer !== "quick"}
         >
           <div
+            data-snap-scroll="true"
             className={cn(
-              "h-full w-full max-w-6xl overflow-y-auto overscroll-contain px-1",
+              "flex h-full w-full max-w-6xl items-center justify-center overflow-y-auto overscroll-contain touch-pan-y px-1",
               activeLayer === "quick"
                 ? "pointer-events-auto"
                 : "pointer-events-none"
             )}
           >
-            <div className="flex min-h-full w-full items-start justify-center md:items-center">
+            <div className="flex min-h-full w-full items-center justify-center py-2">
               <ParallaxPiece offset={offsets[2] ?? 0} depth={1.2} className="w-full">
                 <QuickAccessLayer active={activeLayer === "quick"} />
               </ParallaxPiece>
@@ -600,16 +924,18 @@ function StickyScrollScene() {
           initial={false}
           animate={layerMotion(3, page)}
           transition={layerTransition}
+          aria-hidden={activeLayer !== "modules"}
         >
           <div
+            data-snap-scroll="true"
             className={cn(
-              "h-full w-full max-w-6xl overflow-y-auto overscroll-contain px-1",
+              "flex h-full w-full max-w-6xl items-center justify-center overflow-y-auto overscroll-contain touch-pan-y px-1",
               activeLayer === "modules"
                 ? "pointer-events-auto"
                 : "pointer-events-none"
             )}
           >
-            <div className="flex min-h-full w-full items-start justify-center md:items-center">
+            <div className="flex min-h-full w-full items-center justify-center py-2">
               <ParallaxPiece offset={offsets[3] ?? 0} depth={1.25} className="w-full">
                 <ModulesLayer active={activeLayer === "modules"} />
               </ParallaxPiece>
@@ -617,7 +943,38 @@ function StickyScrollScene() {
           </div>
         </motion.div>
 
-        {/* Indicateur — points serrés, écartés + labels au survol */}
+        {/* Points — mobile (bas) */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(4.85rem+env(safe-area-inset-bottom))] z-20 flex justify-center md:hidden">
+          <nav
+            aria-label="Sections de l’accueil"
+            className="pointer-events-auto flex items-center gap-2 rounded-full border border-brand-line/30 bg-brand-panel/50 px-3 py-2 backdrop-blur-md"
+          >
+            {LAYERS.map((id, index) => {
+              const active = index === page;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-label={`Aller à ${LAYER_LABELS[id]}`}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => goToPage(index)}
+                  className="flex h-5 w-5 items-center justify-center outline-none"
+                >
+                  <span
+                    className={cn(
+                      "block rounded-full transition-all duration-300",
+                      active
+                        ? "h-2 w-5 bg-brand-warm shadow-[0_0_10px_rgba(240,209,188,0.45)]"
+                        : "h-2 w-2 bg-brand-gold-400/45"
+                    )}
+                  />
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Indicateur — desktop (droite) */}
         <div className="absolute top-1/2 right-0 z-20 hidden -translate-y-1/2 md:block">
           <nav
             aria-label="Sections de l’accueil"
@@ -709,10 +1066,14 @@ function StickyScrollScene() {
 
 export function HomeScrollScene() {
   const reduceMotion = useReducedMotion();
+  const isMobile = useIsMobileLayout();
 
-  // Reduced motion : stack + apparitions. Sinon : snap 1 geste = 1 page.
   if (reduceMotion) {
     return <MobileHomeFlow />;
+  }
+
+  if (isMobile) {
+    return <MobileSnapPager />;
   }
 
   return <StickyScrollScene />;

@@ -156,6 +156,10 @@
   }
 
   @media (max-width: 767px) {
+    body {
+      background-attachment: scroll;
+    }
+
     body::after {
       animation: none;
       opacity: 0.68;
@@ -343,13 +347,13 @@
   box-shadow: 0 3px 10px rgba(185, 141, 110, 0.45);
 }
 
-/* Bouton hero — bronze métallique brillant */
-@keyframes bronze-shimmer {
-  0% {
-    background-position: 120% 0;
+/* Bouton hero — bronze métallique, dégradé fluide continu */
+@keyframes bronze-flow {
+  from {
+    background-position: 0% 50%;
   }
-  100% {
-    background-position: -120% 0;
+  to {
+    background-position: 100% 50%;
   }
 }
 
@@ -358,17 +362,24 @@
   isolation: isolate;
   overflow: hidden;
   color: #1a1008;
-  background:
-    linear-gradient(
-      145deg,
-      #f5e0c8 0%,
-      #e8c49a 18%,
-      #c9956a 42%,
-      #a8744a 58%,
-      #d4a574 78%,
-      #f0d1bc 100%
-    );
-  background-size: 100% 100%;
+  background-image: linear-gradient(
+    90deg,
+    #f5e0c8 0%,
+    #e8c49a 10%,
+    #d4a574 20%,
+    #c9956a 30%,
+    #a8744a 40%,
+    #cea687 45%,
+    #f5e0c8 50%,
+    #e8c49a 60%,
+    #d4a574 70%,
+    #c9956a 80%,
+    #a8744a 90%,
+    #cea687 95%,
+    #f5e0c8 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: repeat;
   border: 1px solid rgba(245, 224, 200, 0.55);
   box-shadow:
     0 1px 0 rgba(255, 236, 210, 0.55) inset,
@@ -376,6 +387,7 @@
     0 4px 18px rgba(168, 110, 60, 0.45),
     0 0 36px rgba(206, 166, 135, 0.28);
   text-shadow: 0 1px 0 rgba(255, 240, 220, 0.35);
+  animation: bronze-flow 4.5s linear infinite;
   transition:
     transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.25s ease,
@@ -387,16 +399,23 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 35%,
-    rgba(255, 248, 235, 0.15) 45%,
-    rgba(255, 255, 255, 0.55) 50%,
-    rgba(255, 248, 235, 0.15) 55%,
-    transparent 65%
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 18%,
+    rgba(255, 248, 235, 0.15) 28%,
+    rgba(255, 255, 255, 0.55) 38%,
+    rgba(255, 248, 235, 0.15) 48%,
+    transparent 58%,
+    transparent 68%,
+    rgba(255, 248, 235, 0.15) 78%,
+    rgba(255, 255, 255, 0.55) 88%,
+    rgba(255, 248, 235, 0.15) 98%,
+    transparent 100%
   );
-  background-size: 220% 100%;
-  animation: bronze-shimmer 3.2s ease-in-out infinite;
+  background-size: 200% 100%;
+  background-repeat: repeat;
+  animation: bronze-flow 3.2s linear infinite;
   pointer-events: none;
 }
 
@@ -436,8 +455,23 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .btn-bronze-shine,
   .btn-bronze-shine::before {
     animation: none;
+    background-position: 40% 50%;
+  }
+}
+
+/* Mobile / tactile : figé — l’anim background-position + clip/filter tue le scroll/snap */
+@media (max-width: 767px), (pointer: coarse) {
+  .btn-bronze-shine,
+  .btn-bronze-shine::before {
+    animation: none;
+    background-position: 42% 50%;
+  }
+
+  .btn-bronze-shine::before {
+    opacity: 0.55;
   }
 }
 
@@ -706,84 +740,367 @@ html.has-sticky-prayer {
   }
 }
 
-/* Hero title — gradient animé couleurs brand (droite → gauche, sans retour) */
-@keyframes hero-title-shimmer {
-  0% {
-    background-position: 100% 50%;
-  }
-  100% {
+/* Texte brand — glisse à l’infini dans un seul sens (motif doublé = boucle sans coupure) */
+@keyframes brand-text-shine {
+  from {
     background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
   }
 }
 
 .hero-title-gradient {
   background-image: linear-gradient(
-    110deg,
-    #e6edf5 0%,
-    #f0d1bc 18%,
+    90deg,
+    #b98d6e 0%,
+    #e8c49a 8%,
+    #f5e0c8 14%,
+    #fff8f0 20%,
+    #f0d1bc 28%,
     #cea687 36%,
-    #ddbca3 52%,
-    #aab7c5 68%,
-    #f0d1bc 84%,
-    #e6edf5 100%
+    #a8744a 42%,
+    #cea687 46%,
+    #b98d6e 50%,
+    #e8c49a 58%,
+    #f5e0c8 64%,
+    #fff8f0 70%,
+    #f0d1bc 78%,
+    #cea687 86%,
+    #a8744a 92%,
+    #cea687 96%,
+    #b98d6e 100%
   );
-  background-size: 300% 100%;
+  background-size: 200% 100%;
+  background-repeat: repeat;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  animation: hero-title-shimmer 6s linear infinite;
+  filter: drop-shadow(0 0 14px rgba(240, 209, 188, 0.45))
+    drop-shadow(0 0 32px rgba(206, 166, 135, 0.28))
+    drop-shadow(0 1px 0 rgba(255, 248, 235, 0.35));
+  animation: brand-text-shine 6s linear infinite;
 }
 
 .hero-bismillah-gradient {
   background-image: linear-gradient(
-    100deg,
+    90deg,
     #cea687 0%,
-    #f0d1bc 28%,
-    #ddbca3 55%,
-    #f0d1bc 78%,
-    #b98d6e 100%
+    #f0d1bc 12%,
+    #ddbca3 25%,
+    #f0d1bc 38%,
+    #cea687 50%,
+    #f0d1bc 62%,
+    #ddbca3 75%,
+    #f0d1bc 88%,
+    #cea687 100%
   );
-  background-size: 300% 100%;
+  background-size: 200% 100%;
+  background-repeat: repeat;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  animation: hero-title-shimmer 8s linear infinite;
+  animation: brand-text-shine 8s linear infinite;
 }
 
 /* Nom de prière — bronze métallique brillant */
 .text-bronze-shine {
   background-image: linear-gradient(
-    115deg,
+    90deg,
     #f5e0c8 0%,
-    #e8c49a 16%,
-    #cea687 32%,
-    #f0d1bc 48%,
-    #a8744a 62%,
-    #ddbca3 78%,
+    #cea687 12%,
+    #a8744a 25%,
+    #cea687 38%,
+    #f5e0c8 50%,
+    #cea687 62%,
+    #a8744a 75%,
+    #cea687 88%,
     #f5e0c8 100%
   );
-  background-size: 280% 100%;
+  background-size: 200% 100%;
+  background-repeat: repeat;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 1px 0 rgb(255 240 220 / 0.18));
-  animation: hero-title-shimmer 5.5s linear infinite;
+  animation: brand-text-shine 6s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-title-gradient,
   .hero-bismillah-gradient,
-  .text-bronze-shine {
+  .text-bronze-shine,
+  .nav-brand-shine {
     animation: none;
     background-position: 40% 50%;
   }
+
+  .nav-brand-shine {
+    filter: drop-shadow(0 0 10px rgba(240, 209, 188, 0.4))
+      drop-shadow(0 0 18px rgba(206, 166, 135, 0.28));
+  }
+
+  .hero-title-gradient {
+    filter: drop-shadow(0 0 12px rgba(240, 209, 188, 0.35));
+  }
+}
+
+/* Mobile / tactile : même figement — évite jank pendant le swipe entre pages */
+@media (max-width: 767px), (pointer: coarse) {
+  .hero-title-gradient,
+  .hero-bismillah-gradient,
+  .text-bronze-shine,
+  .nav-brand-shine {
+    animation: none;
+    background-position: 38% 50%;
+  }
+
+  .hero-title-gradient,
+  .nav-brand-shine,
+  .text-bronze-shine {
+    filter: none;
+  }
+
+  .glass-panel,
+  .glass-panel-interactive {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    filter: none;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  }
+
+  .float-tile,
+  .float-tile--active,
+  .float-chip {
+    filter: none;
+  }
+}
+
+/* Pendant le changement de page : pause des shines (desktop inclus) */
+.home-paging .hero-title-gradient,
+.home-paging .hero-bismillah-gradient,
+.home-paging .text-bronze-shine,
+.home-paging .nav-brand-shine,
+.home-paging .btn-bronze-shine,
+.home-paging .btn-bronze-shine::before {
+  animation-play-state: paused !important;
 }
 
 .hero-word-halo {
   text-shadow:
     0 0 12px rgba(240, 209, 188, 0.35),
     0 0 28px rgba(206, 166, 135, 0.22);
+}
+
+/* Titre marque navbar — bronze très brillant, boucle continue */
+.nav-brand-shine {
+  background-image: linear-gradient(
+    90deg,
+    #b98d6e 0%,
+    #e8c49a 8%,
+    #f5e0c8 14%,
+    #fffaf3 20%,
+    #f0d1bc 28%,
+    #cea687 36%,
+    #a8744a 42%,
+    #cea687 46%,
+    #b98d6e 50%,
+    #e8c49a 58%,
+    #f5e0c8 64%,
+    #fffaf3 70%,
+    #f0d1bc 78%,
+    #cea687 86%,
+    #a8744a 92%,
+    #cea687 96%,
+    #b98d6e 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: repeat;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px rgba(255, 248, 235, 0.55))
+    drop-shadow(0 0 16px rgba(240, 209, 188, 0.5))
+    drop-shadow(0 0 28px rgba(206, 166, 135, 0.35));
+  animation: brand-text-shine 5s linear infinite;
+}
+
+/* ——— Sawra CTA : nuage de voix (méthode Explorer les voix) ——— */
+@keyframes sawra-voice-bubble-rise {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 12px) scale(0.5);
+  }
+  22% {
+    opacity: 1;
+    transform: translate(-50%, calc(var(--bubble-rise) * -0.55)) scale(1.02);
+  }
+  62% {
+    opacity: 1;
+    transform: translate(
+        calc(-50% + var(--bubble-drift, 0px)),
+        calc(var(--bubble-rise) * -1)
+      )
+      scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(-50% + var(--bubble-drift, 0px) * 1.6),
+        calc(var(--bubble-rise) * -1.35)
+      )
+      scale(0.96);
+  }
+}
+
+@keyframes sawra-voice-bubble-wobble {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -3px;
+  }
+}
+
+@keyframes sawra-voice-speck-rise {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 6px) scale(0.4);
+  }
+  30% {
+    opacity: 0.85;
+    transform: translate(-50%, calc(var(--bubble-rise) * -0.5)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, calc(var(--bubble-rise) * -1)) scale(0.7);
+  }
+}
+
+.sawra-hero-cta {
+  isolation: isolate;
+}
+
+.sawra-voice-bubbles {
+  pointer-events: none;
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(100% - 0.35rem);
+  z-index: 5;
+  height: 11.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.sawra-voice-bubbles.is-visible {
+  opacity: 1;
+}
+
+.sawra-voice-bubbles__stage {
+  position: absolute;
+  inset: 0;
+}
+
+.sawra-voice-bubbles__bubble {
+  position: absolute;
+  left: var(--bubble-x);
+  bottom: 0;
+  display: inline-flex;
+  max-width: 11rem;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem 0.3rem 0.32rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(226, 208, 186, 0.35);
+  background: linear-gradient(
+    155deg,
+    rgba(38, 58, 82, 0.92) 0%,
+    rgba(14, 24, 38, 0.94) 100%
+  );
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.42),
+    0 0 20px rgba(191, 160, 120, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+  animation:
+    sawra-voice-bubble-rise 4s cubic-bezier(0.22, 1, 0.32, 1) infinite,
+    sawra-voice-bubble-wobble 2.6s ease-in-out infinite;
+  animation-delay: var(--bubble-delay, 0s);
+  will-change: transform, opacity;
+}
+
+.sawra-voice-bubbles__avatar {
+  display: block;
+  height: 1.85rem;
+  width: 1.85rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 9999px;
+  border: 1px solid rgba(226, 208, 186, 0.4);
+  background:
+    radial-gradient(circle at 50% 35%, rgba(206, 166, 135, 0.25), transparent 55%),
+    #0d1725;
+}
+
+.sawra-voice-bubbles__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #eef3f8;
+}
+
+.sawra-voice-bubbles__shine {
+  position: absolute;
+  top: 0.22rem;
+  left: 0.9rem;
+  height: 0.3rem;
+  width: 0.75rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.28);
+  filter: blur(1px);
+}
+
+.sawra-voice-bubbles__speck {
+  position: absolute;
+  left: var(--bubble-x);
+  bottom: 0;
+  height: var(--bubble-size);
+  width: var(--bubble-size);
+  border-radius: 9999px;
+  border: 1px solid rgba(226, 208, 186, 0.45);
+  background: rgba(226, 208, 186, 0.16);
+  box-shadow: 0 0 10px rgba(191, 160, 120, 0.35);
+  animation: sawra-voice-speck-rise 2.6s ease-in-out infinite;
+  animation-delay: var(--bubble-delay, 0s);
+}
+
+@media (hover: none) {
+  .sawra-voice-bubbles {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sawra-voice-bubbles__bubble,
+  .sawra-voice-bubbles__speck {
+    animation: none !important;
+  }
+
+  .sawra-voice-bubbles__bubble {
+    transform: translate(-50%, calc(var(--bubble-rise) * -1));
+  }
+
+  .sawra-voice-bubbles__speck {
+    opacity: 0.5;
+    transform: translate(-50%, calc(var(--bubble-rise) * -1));
+  }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   motion,
@@ -19,6 +20,7 @@ import {
   Volume2,
 } from "lucide-react";
 
+import { RECITER_PORTRAITS } from "@/lib/reciters/portraits";
 import { cn } from "@/lib/utils";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -107,17 +109,32 @@ function PlayerMock() {
       />
       <div className="relative overflow-hidden rounded-[1.75rem] border border-brand-gold-400/20 bg-brand-panel/70 px-5 py-5 shadow-[0_30px_80px_rgba(0,0,0,0.4)] backdrop-blur-xl sm:px-7 sm:py-6">
         <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 text-left">
-            <p className="text-[10px] font-bold tracking-[0.22em] text-brand-gold-400 uppercase">
-              En écoute
-            </p>
-            <p
-              className="mt-1 truncate font-arabic text-xl text-brand-warm sm:text-2xl"
-              dir="rtl"
-            >
-              سورة الرحمن
-            </p>
-            <p className="mt-0.5 text-sm text-brand-mist">Ar-Rahmân · Ayah 1–13</p>
+          <div className="flex min-w-0 items-center gap-3 text-left">
+            <span className="relative flex size-12 shrink-0 items-end justify-center overflow-hidden rounded-full border border-brand-gold-400/30 bg-brand-night-soft">
+              <Image
+                src="/reciters/alafasy.webp"
+                alt=""
+                width={48}
+                height={48}
+                className="h-[92%] w-auto object-contain object-bottom"
+                unoptimized
+                priority
+              />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold tracking-[0.22em] text-brand-gold-400 uppercase">
+                En écoute
+              </p>
+              <p
+                className="mt-1 truncate font-arabic text-xl text-brand-warm sm:text-2xl"
+                dir="rtl"
+              >
+                سورة الرحمن
+              </p>
+              <p className="mt-0.5 truncate text-sm text-brand-mist">
+                Ar-Rahmân · Al-Afasy
+              </p>
+            </div>
           </div>
           <motion.span
             className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-warm text-brand-night shadow-[0_0_28px_rgba(240,209,188,0.35)]"
@@ -404,6 +421,73 @@ export function SawraLanding() {
             );
           })}
         </div>
+      </section>
+
+      {/* ——— VOIX ——— */}
+      <section className="relative px-5 py-20 md:px-8 md:py-28">
+        <Reveal className="mx-auto mb-12 max-w-xl text-center md:mb-16">
+          <p className="text-xs font-semibold tracking-[0.24em] text-brand-gold-400 uppercase">
+            Les voix
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-brand-pearl md:text-4xl">
+            Des récitateurs pour chaque oreille
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-brand-mist md:text-base">
+            Al-Afasy, As-Sudais, Al-Minshawi et bien d’autres — choisis celle qui
+            t’accompagne le mieux sur Sawra.
+          </p>
+        </Reveal>
+
+        <div className="mx-auto grid max-w-5xl grid-cols-3 gap-x-3 gap-y-8 sm:grid-cols-4 sm:gap-x-5 sm:gap-y-10 md:grid-cols-5 lg:grid-cols-5">
+          {RECITER_PORTRAITS.map((reciter, i) => (
+            <Reveal key={reciter.id} delay={Math.min(i, 8) * 0.04}>
+              <a
+                href={SAWRA_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col items-center gap-2.5 text-center outline-none"
+              >
+                <motion.span
+                  className="relative flex size-[4.5rem] items-end justify-center overflow-hidden rounded-full border border-brand-gold-400/25 bg-brand-night-soft shadow-[0_8px_24px_rgba(0,0,0,0.35)] sm:size-24"
+                  whileHover={reduce ? undefined : { y: -4, scale: 1.04 }}
+                  transition={{ type: "spring", stiffness: 360, damping: 20 }}
+                >
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(206,166,135,0.22),transparent_60%)]"
+                  />
+                  <Image
+                    src={reciter.src}
+                    alt={reciter.label}
+                    width={96}
+                    height={96}
+                    className="relative z-[1] h-[92%] w-auto object-contain object-bottom transition-transform duration-500 group-hover:scale-[1.03]"
+                    unoptimized
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/10 transition-shadow duration-300 group-hover:shadow-[0_0_28px_rgba(240,209,188,0.28)]"
+                  />
+                </motion.span>
+                <span className="max-w-[6.5rem] text-[11px] leading-snug font-semibold text-brand-mist transition-colors group-hover:text-brand-warm sm:max-w-[7.5rem] sm:text-xs">
+                  {reciter.label}
+                </span>
+              </a>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={0.15} className="mt-12 text-center md:mt-14">
+          <a
+            href={SAWRA_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-warm transition-colors hover:text-brand-gold-300"
+          >
+            Explorer toutes les voix sur Sawra
+            <ArrowUpRight className="size-3.5" />
+          </a>
+        </Reveal>
       </section>
 
       {/* ——— STATEMENT ——— */}
