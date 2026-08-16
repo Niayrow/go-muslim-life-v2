@@ -6,7 +6,7 @@ import {
   ArrowUpRight,
   BookOpen,
   Gamepad2,
-  Library,
+  MessageCircleQuestion,
   ScrollText,
   Sparkles,
   type LucideIcon,
@@ -30,8 +30,14 @@ const QUICK: {
   {
     label: "Invocations",
     description: "Douas & Adhkar",
-    href: "/savoir",
+    href: "/invocations",
     icon: Sparkles,
+  },
+  {
+    label: "Questions & Réponses",
+    description: "Réponses sourcées",
+    href: "/questions",
+    icon: MessageCircleQuestion,
   },
   {
     label: "Quiz et jeux",
@@ -45,15 +51,9 @@ const QUICK: {
     href: "/histoires",
     icon: ScrollText,
   },
-  {
-    label: "Bibliothèque",
-    description: "Livres et ressources",
-    href: "/savoir",
-    icon: Library,
-  },
 ];
 
-const ease = [0.22, 1, 0.36, 1] as const;
+const ease = [0.16, 1, 0.3, 1] as const;
 
 type QuickAccessLayerProps = {
   active?: boolean;
@@ -68,13 +68,20 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
     <div className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-3 px-1 py-0 text-center max-md:max-h-[min(100dvh,900px)] sm:gap-5 md:gap-8 md:py-4">
       <motion.div
         className="space-y-2 md:space-y-3"
-        initial={false}
+        initial={{ opacity: 0, y: 28 }}
         animate={
           active
             ? { opacity: 1, y: 0 }
-            : { opacity: 0, y: reduceMotion ? 0 : 28 }
+            : {
+                opacity: 0,
+                y: reduceMotion ? 0 : 28,
+              }
         }
-        transition={{ duration: 0.55, ease }}
+        transition={{
+          duration: active ? 0.6 : 0.28,
+          delay: active ? 0.18 : 0,
+          ease,
+        }}
       >
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-gold-400 md:text-sm">
           Explorer
@@ -91,7 +98,7 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
         {/* Carte Coran — dominante */}
         <motion.div
           className="h-full"
-          initial={false}
+          initial={{ opacity: 0, y: 36, scale: 0.96 }}
           animate={
             active
               ? { opacity: 1, y: 0, scale: 1 }
@@ -101,21 +108,25 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
                   scale: reduceMotion ? 1 : 0.96,
                 }
           }
-          transition={{ duration: 0.6, delay: active ? 0.08 : 0, ease }}
+          transition={{
+            duration: active ? 0.65 : 0.28,
+            delay: active ? 0.28 : 0,
+            ease,
+          }}
         >
           <Link
             href={FEATURED.href}
             className={cn(
               "float-tile group relative z-0 flex h-full min-h-[160px] flex-col justify-between rounded-[1.75rem] border border-brand-gold-400/30 bg-gradient-to-br from-brand-warm/18 via-brand-panel to-brand-night p-5 text-left sm:min-h-[220px] md:min-h-[280px] md:p-8 lg:min-h-full lg:p-9",
-              "transition-[border-color,transform] duration-300",
-              "hover:-translate-y-1.5 hover:border-brand-gold-400/50"
+              "transition-[border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+              "hover:border-brand-gold-400/50"
             )}
           >
             <span
               aria-hidden
               className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
             >
-              <span className="absolute -top-16 -right-10 size-56 rounded-full bg-brand-warm/20 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+              <span className="absolute -top-16 -right-10 size-56 rounded-full bg-brand-warm/20 blur-3xl transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:opacity-100" />
               <span className="absolute -bottom-20 -left-10 size-48 rounded-full bg-brand-steel-400/15 blur-3xl" />
             </span>
             <motion.span
@@ -139,9 +150,9 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
               <span className="block text-xs text-brand-mist sm:text-sm md:text-base">
                 {FEATURED.description}
               </span>
-              <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-warm transition-transform duration-300 group-hover:translate-x-0.5 md:mt-4">
+              <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-warm transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-0.5 md:mt-4">
                 Découvrir Sawra
-                <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="size-4 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
             </div>
           </Link>
@@ -155,7 +166,7 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
               <motion.div
                 key={item.label}
                 className="h-full"
-                initial={false}
+                initial={{ opacity: 0, y: 28, scale: 0.96 }}
                 animate={
                   active
                     ? { opacity: 1, y: 0, scale: 1 }
@@ -166,19 +177,19 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
                       }
                 }
                 transition={{
-                  duration: 0.5,
-                  delay: active ? 0.14 + index * 0.07 : 0,
+                  duration: active ? 0.55 : 0.25,
+                  delay: active ? 0.36 + index * 0.08 : 0,
                   ease,
                 }}
               >
                 <Link
                   href={item.href}
                   className={cn(
-                    "float-tile group relative flex h-full min-h-[108px] flex-col justify-between rounded-[1.25rem] p-3.5 text-left transition-[transform,box-shadow,border-color] duration-300 sm:min-h-[128px] sm:rounded-[1.5rem] sm:p-5 md:min-h-[150px] md:p-6",
-                    "hover:-translate-y-1.5 hover:border-brand-gold-400/35"
+                    "float-tile group relative flex h-full min-h-[108px] flex-col justify-between rounded-[1.25rem] p-3.5 text-left transition-[border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:min-h-[128px] sm:rounded-[1.5rem] sm:p-5 md:min-h-[150px] md:p-6",
+                    "hover:border-brand-gold-400/35"
                   )}
                 >
-                  <span className="flex size-9 items-center justify-center rounded-xl border border-brand-gold-400/25 bg-brand-warm/12 text-brand-warm shadow-[inset_0_1px_0_rgba(240,209,188,0.16)] transition-transform duration-300 group-hover:scale-110 sm:size-12 sm:rounded-2xl md:size-14">
+                  <span className="flex size-9 items-center justify-center rounded-xl border border-brand-gold-400/25 bg-brand-warm/12 text-brand-warm shadow-[inset_0_1px_0_rgba(240,209,188,0.16)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105 sm:size-12 sm:rounded-2xl md:size-14">
                     <Icon className="size-4 sm:size-5 md:size-6" strokeWidth={2.1} />
                   </span>
                   <span className="mt-3 block pr-4 sm:mt-5 sm:pr-6">
@@ -189,7 +200,7 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
                       {item.description}
                     </span>
                   </span>
-                  <ArrowUpRight className="absolute top-3.5 right-3.5 size-3.5 text-brand-steel-400 opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-warm group-hover:opacity-100 sm:top-5 sm:right-5 sm:size-4 md:top-6 md:right-6" />
+                  <ArrowUpRight className="absolute top-3.5 right-3.5 size-3.5 text-brand-steel-400 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-warm group-hover:opacity-100 sm:top-5 sm:right-5 sm:size-4 md:top-6 md:right-6" />
                 </Link>
               </motion.div>
             );

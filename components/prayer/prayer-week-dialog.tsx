@@ -65,7 +65,7 @@ export function PrayerWeekDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90dvh] w-[calc(100%-1.25rem)] max-w-4xl flex-col overflow-hidden rounded-[1.75rem]">
+      <DialogContent className="flex max-h-[90dvh] w-[calc(100%-1.25rem)] max-w-4xl select-none flex-col overflow-hidden rounded-[1.75rem]">
         <div className="space-y-4 px-5 pt-6 pb-4 md:px-6">
           <div className="flex items-start gap-3.5 pr-10">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-brand-gold-400/30 bg-brand-warm/15 text-brand-warm">
@@ -171,7 +171,7 @@ export function PrayerWeekDialog({
                           </span>
                           <span
                             className={cn(
-                              "font-mono text-sm tabular-nums md:text-[0.95rem]",
+                              "select-none font-mono text-sm tabular-nums md:text-[0.95rem]",
                               row.isToday
                                 ? "font-semibold text-brand-warm"
                                 : slot.secondary

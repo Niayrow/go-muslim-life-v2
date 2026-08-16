@@ -21,9 +21,7 @@ const MODULES: {
   description: string;
   href: string;
   icon: LucideIcon;
-  accent: string;
-  iconBg: string;
-  iconBorder: string;
+  chapters: number;
 }[] = [
   {
     n: "01",
@@ -32,9 +30,7 @@ const MODULES: {
       "La clé du Paradis. Ablutions (Wudu), Ghusl et Tayammum étape par étape.",
     href: "/savoir/purification",
     icon: Droplets,
-    accent: "text-sky-400",
-    iconBg: "bg-sky-400/10",
-    iconBorder: "border-sky-400/35",
+    chapters: 6,
   },
   {
     n: "02",
@@ -43,9 +39,7 @@ const MODULES: {
       "Le pilier central. Positions, récitations et sens pour une connexion parfaite.",
     href: "/savoir/priere",
     icon: Footprints,
-    accent: "text-emerald-400",
-    iconBg: "bg-emerald-400/10",
-    iconBorder: "border-emerald-400/35",
+    chapters: 13,
   },
   {
     n: "03",
@@ -54,9 +48,7 @@ const MODULES: {
       "L’Excellence (Ihsan). Colère, famille, langue… Devenez votre meilleure version.",
     href: "/savoir/comportement",
     icon: Crown,
-    accent: "text-orange-400",
-    iconBg: "bg-orange-400/10",
-    iconBorder: "border-orange-400/35",
+    chapters: 6,
   },
   {
     n: "04",
@@ -65,9 +57,7 @@ const MODULES: {
       "Ramadan, Nuit du Destin et Aïd. Règles et sagesse du 4ème pilier.",
     href: "/savoir/jeune",
     icon: Moon,
-    accent: "text-violet-400",
-    iconBg: "bg-violet-400/10",
-    iconBorder: "border-violet-400/35",
+    chapters: 10,
   },
   {
     n: "05",
@@ -76,13 +66,13 @@ const MODULES: {
       "Le 3ème pilier. Nisab, calcul, bénéficiaires… Maîtrisez l’aumône obligatoire.",
     href: "/savoir/zakat",
     icon: Coins,
-    accent: "text-amber-400",
-    iconBg: "bg-amber-400/10",
-    iconBorder: "border-amber-400/35",
+    chapters: 7,
   },
 ];
 
-const ease = [0.22, 1, 0.36, 1] as const;
+const ease = [0.16, 1, 0.3, 1] as const;
+const hoverEase =
+  "duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]" as const;
 
 type ModulesLayerProps = {
   active?: boolean;
@@ -96,22 +86,29 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
     <div className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-3 px-1 py-0 text-center sm:gap-5 md:gap-7 md:py-3">
       <motion.div
         className="mx-auto max-w-2xl space-y-2.5 md:space-y-3"
-        initial={false}
+        initial={{ opacity: 0, y: 28 }}
         animate={
           active
             ? { opacity: 1, y: 0 }
-            : { opacity: 0, y: reduceMotion ? 0 : 24 }
+            : {
+                opacity: 0,
+                y: reduceMotion ? 0 : 24,
+              }
         }
-        transition={{ duration: 0.55, ease }}
+        transition={{
+          duration: active ? 0.6 : 0.28,
+          delay: active ? 0.18 : 0,
+          ease,
+        }}
       >
-        <span className="float-chip inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-brand-mist uppercase">
-          <Boxes className="size-3.5 text-brand-steel-400" strokeWidth={2.2} />
+        <span className="float-chip inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-brand-gold-400 uppercase">
+          <Boxes className="size-3.5 text-brand-warm" strokeWidth={2.2} />
           Apprentissage
         </span>
 
         <h2 className="text-2xl font-extrabold tracking-tight text-brand-pearl sm:text-3xl md:text-5xl">
           Nos{" "}
-          <span className="bg-gradient-to-r from-brand-steel-400 via-sky-300 to-brand-warm bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-brand-gold-300 via-brand-warm to-brand-gold-400 bg-clip-text text-transparent">
             Modules
           </span>
         </h2>
@@ -134,7 +131,7 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
                 "overflow-visible",
                 wide ? "lg:col-span-3" : "lg:col-span-2"
               )}
-              initial={false}
+              initial={{ opacity: 0, y: 28, scale: 0.96 }}
               animate={
                 active
                   ? { opacity: 1, y: 0, scale: 1 }
@@ -145,37 +142,57 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
                     }
               }
               transition={{
-                duration: 0.5,
-                delay: active ? 0.1 + index * 0.06 : 0,
+                duration: active ? 0.55 : 0.25,
+                delay: active ? 0.28 + index * 0.08 : 0,
                 ease,
               }}
             >
               <Link
                 href={mod.href}
                 className={cn(
-                  "float-tile group relative flex h-full min-h-[148px] flex-col rounded-[1.25rem] p-3.5 text-left transition-[transform,box-shadow,border-color] duration-300 sm:min-h-[168px] sm:rounded-[1.5rem] sm:p-5 md:min-h-[190px] md:p-6",
-                  "hover:-translate-y-1.5 hover:border-brand-gold-400/35"
+                  "float-tile group relative flex h-full min-h-[148px] flex-col overflow-hidden rounded-[1.25rem] p-3.5 text-left sm:min-h-[168px] sm:rounded-[1.5rem] sm:p-5 md:min-h-[190px] md:p-6",
+                  "border-brand-gold-400/15 transition-[border-color] hover:border-brand-gold-400/40",
+                  hoverEase
                 )}
               >
+                {/* Halo bronze au hover */}
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
                 >
-                  <span className="absolute right-2 bottom-0 select-none text-[4.5rem] leading-none font-extrabold tracking-tighter text-white/[0.04] sm:text-[5.5rem] md:text-[6.5rem]">
+                  <span
+                    className={cn(
+                      "absolute -top-16 -right-12 size-40 rounded-full bg-brand-warm/15 blur-3xl opacity-0 transition-opacity",
+                      hoverEase,
+                      "group-hover:opacity-100"
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "absolute -bottom-20 -left-10 size-36 rounded-full bg-brand-gold-400/10 blur-3xl opacity-40 transition-opacity",
+                      hoverEase,
+                      "group-hover:opacity-80"
+                    )}
+                  />
+                  <span className="absolute right-2 bottom-0 select-none font-extrabold tracking-tighter text-brand-gold-400/[0.07] text-[4.5rem] leading-none sm:text-[5.5rem] md:text-[6.5rem]">
                     {mod.n}
                   </span>
                 </span>
 
-                <span
-                  className={cn(
-                    "relative flex size-9 items-center justify-center rounded-xl border shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:size-10 md:size-11",
-                    mod.iconBg,
-                    mod.iconBorder,
-                    mod.accent
-                  )}
-                >
-                  <Icon className="size-4 sm:size-[1.15rem]" strokeWidth={2.1} />
-                </span>
+                <div className="relative flex items-start justify-between gap-2">
+                  <span
+                    className={cn(
+                      "flex size-9 items-center justify-center rounded-xl border border-brand-gold-400/25 bg-brand-warm/12 text-brand-warm shadow-[inset_0_1px_0_rgba(240,209,188,0.16)] transition-[transform,border-color,background-color]",
+                      hoverEase,
+                      "group-hover:scale-105 group-hover:border-brand-gold-400/45 group-hover:bg-brand-warm/18 sm:size-10 md:size-11"
+                    )}
+                  >
+                    <Icon className="size-4 sm:size-[1.15rem]" strokeWidth={2.1} />
+                  </span>
+                  <span className="text-[10px] font-bold tracking-[0.18em] text-brand-steel-500 tabular-nums uppercase sm:text-[11px]">
+                    {mod.n}
+                  </span>
+                </div>
 
                 <div className="relative mt-4 flex flex-1 flex-col sm:mt-5">
                   <h3 className="text-sm font-bold tracking-tight text-brand-pearl sm:text-base md:text-xl">
@@ -185,12 +202,39 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
                     {mod.description}
                   </p>
 
-                  <span className="mt-auto flex items-center gap-2 pt-4 text-[10px] font-semibold tracking-[0.14em] text-brand-steel-400 uppercase transition-colors duration-300 group-hover:text-brand-warm sm:gap-2.5 sm:pt-5 sm:text-[11px]">
-                    Explorer
-                    <span className="flex size-6 items-center justify-center rounded-full border border-brand-line/40 bg-brand-panel/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-300 group-hover:border-brand-warm/40 group-hover:bg-brand-warm/10 sm:size-7">
-                      <ArrowRight className="size-3 transition-transform duration-300 group-hover:translate-x-0.5 sm:size-3.5" />
+                  <div
+                    className={cn(
+                      "mt-auto flex items-center justify-between gap-2 pt-4 sm:pt-5"
+                    )}
+                  >
+                    <span className="text-[10px] font-semibold tracking-[0.12em] text-brand-steel-500 uppercase sm:text-[11px]">
+                      {mod.chapters} chapitres
                     </span>
-                  </span>
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.12em] text-brand-steel-400 uppercase transition-colors sm:text-[11px]",
+                        hoverEase,
+                        "group-hover:text-brand-warm"
+                      )}
+                    >
+                      Explorer
+                      <span
+                        className={cn(
+                          "flex size-6 items-center justify-center rounded-full border border-brand-gold-400/20 bg-brand-warm/8 shadow-[inset_0_1px_0_rgba(240,209,188,0.12)] transition-all sm:size-7",
+                          hoverEase,
+                          "group-hover:border-brand-gold-400/45 group-hover:bg-brand-warm/15"
+                        )}
+                      >
+                        <ArrowRight
+                          className={cn(
+                            "size-3 text-brand-warm transition-transform sm:size-3.5",
+                            hoverEase,
+                            "group-hover:translate-x-0.5"
+                          )}
+                        />
+                      </span>
+                    </span>
+                  </div>
                 </div>
               </Link>
             </motion.li>

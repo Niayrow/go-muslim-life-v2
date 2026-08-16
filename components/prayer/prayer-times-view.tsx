@@ -71,7 +71,7 @@ export function PrayerTimesView() {
     CALCULATION_METHODS.find((m) => m.id === methodId) ?? CALCULATION_METHODS[0];
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 py-8 md:gap-8 md:px-8 md:py-10 lg:px-10">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 select-none flex-col gap-6 px-5 py-8 md:gap-8 md:px-8 md:py-10 lg:px-10">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-gold-400">
@@ -154,7 +154,7 @@ export function PrayerTimesView() {
                 <p className="text-4xl font-extrabold tracking-tight text-brand-pearl md:text-5xl">
                   {next.label}
                 </p>
-                <p className="mt-2 text-3xl font-semibold text-brand-warm tabular-nums md:text-4xl">
+                <p className="mt-2 select-none text-3xl font-semibold text-brand-warm tabular-nums md:text-4xl">
                   {next.time}
                 </p>
               </div>
@@ -226,7 +226,7 @@ export function PrayerTimesView() {
                   </span>
                   <span
                     className={cn(
-                      "font-mono text-base font-semibold tabular-nums",
+                      "select-none font-mono text-base font-semibold tabular-nums",
                       isNext ? "text-brand-warm" : "text-brand-pearl",
                       isPast && "text-brand-mist"
                     )}

@@ -8,15 +8,32 @@ import { Headphones } from "lucide-react";
 import { PrayerLayer } from "@/components/home/prayer-layer";
 import { QuickAccessLayer } from "@/components/home/quick-access";
 import { ModulesLayer } from "@/components/home/modules-section";
+import { HomeSearchBar } from "@/components/search/home-search-bar";
 import { cn } from "@/lib/utils";
 
 type LayerId = "hero" | "prayer" | "quick" | "modules";
 
 const LAYERS: LayerId[] = ["hero", "prayer", "quick", "modules"];
+const LAYER_LABELS: Record<LayerId, string> = {
+  hero: "Accueil",
+  prayer: "Horaires",
+  quick: "Accès rapide",
+  modules: "Modules",
+};
 const PAGE_COUNT = LAYERS.length;
-const SNAP_LOCK_MS = 750;
+const LAYER_DURATION_S = 1.05;
+const SNAP_LOCK_MS = 1100;
 const WHEEL_THRESHOLD = 12;
 const TOUCH_THRESHOLD = 48;
+
+/** Vitesses parallax (px par “page”) — loin = lent, près = rapide. */
+const PARALLAX = {
+  bgFar: 42,
+  bgMid: 78,
+  bgNear: 128,
+  shell: 140,
+  content: 56,
+} as const;
 
 function HeroScrollHint({
   onClick,
@@ -97,59 +114,192 @@ function HeroScrollHint({
   );
 }
 
-function HeroLayer() {
+function HeroLayer({
+  offset = 0,
+  active = true,
+}: {
+  offset?: number;
+  active?: boolean;
+}) {
   return (
     <div className="flex max-w-4xl flex-col items-center gap-5 text-center sm:gap-7 md:gap-10">
-      <p
-        className="hero-bismillah-gradient font-arabic text-3xl leading-relaxed sm:text-4xl md:text-5xl lg:text-6xl"
-        dir="rtl"
+      <ParallaxReveal offset={offset} depth={0.45} active={active} index={0}>
+        <p
+          className="hero-bismillah-gradient font-arabic text-3xl leading-relaxed sm:text-4xl md:text-5xl lg:text-6xl"
+          dir="rtl"
+        >
+          بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+        </p>
+      </ParallaxReveal>
+
+      <ParallaxReveal offset={offset} depth={0.7} active={active} index={1}>
+        <div className="h-px w-16 bg-gradient-to-r from-transparent via-brand-gold-400/60 to-transparent md:w-24" />
+      </ParallaxReveal>
+
+      <ParallaxReveal offset={offset} depth={1} active={active} index={2}>
+        <h1 className="hero-title-gradient text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
+          GoMuslimLife
+        </h1>
+      </ParallaxReveal>
+
+      <ParallaxReveal offset={offset} depth={1.25} active={active} index={3}>
+        <h2 className="max-w-2xl text-xl font-bold tracking-tight text-brand-pearl/90 sm:text-2xl md:text-3xl">
+          Apprenez et Apaisez votre Cœur.
+        </h2>
+      </ParallaxReveal>
+
+      <ParallaxReveal offset={offset} depth={1.45} active={active} index={4}>
+        <p className="max-w-xl text-base text-brand-mist sm:text-lg md:text-xl">
+          Découvrez la vie des{" "}
+          <span className="hero-word-halo font-semibold text-brand-warm">
+            Prophètes
+          </span>{" "}
+          et maîtrisez les bases de votre religion.
+        </p>
+      </ParallaxReveal>
+
+      <ParallaxReveal
+        offset={offset}
+        depth={1.55}
+        active={active}
+        index={5}
+        className="w-full max-w-xl"
       >
-        بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
-      </p>
+        <HomeSearchBar />
+      </ParallaxReveal>
 
-      <div className="h-px w-16 bg-gradient-to-r from-transparent via-brand-gold-400/60 to-transparent md:w-24" />
-
-      <h1 className="hero-title-gradient text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
-        GoMuslimLife
-      </h1>
-
-      <h2 className="max-w-2xl text-xl font-bold tracking-tight text-brand-pearl/90 sm:text-2xl md:text-3xl">
-        Apprenez et Apaisez votre Cœur.
-      </h2>
-
-      <p className="max-w-xl text-base text-brand-mist sm:text-lg md:text-xl">
-        Découvrez la vie des{" "}
-        <span className="hero-word-halo font-semibold text-brand-warm">
-          Prophètes
-        </span>{" "}
-        et maîtrisez les bases de votre religion.
-      </p>
-
-      <Link
-        href="/sawra"
-        className="btn-bronze-shine group inline-flex max-w-full items-center justify-center gap-2.5 rounded-2xl px-5 py-3.5 text-sm font-bold sm:px-7 sm:py-4 sm:text-[15px]"
-      >
-        <Headphones className="size-4 shrink-0 opacity-90 transition-transform duration-300 group-hover:scale-110" />
-        <span className="text-balance">
-          Écouter le Coran et bien plus encore avec Sawra
-        </span>
-      </Link>
+      <ParallaxReveal offset={offset} depth={1.7} active={active} index={6}>
+        <Link
+          href="/sawra"
+          className="btn-bronze-shine group inline-flex max-w-full items-center justify-center gap-2.5 rounded-2xl px-5 py-3.5 text-sm font-bold sm:px-7 sm:py-4 sm:text-[15px]"
+        >
+          <Headphones className="size-4 shrink-0 opacity-90 transition-transform duration-300 group-hover:scale-110" />
+          <span className="text-balance">
+            Écouter le Coran et bien plus encore avec Sawra
+          </span>
+        </Link>
+      </ParallaxReveal>
     </div>
   );
 }
 
-const ease = [0.22, 1, 0.36, 1] as const;
+/** Courbe plus amortie pour le snap plein écran (arrive doucement à l’arrêt). */
+const pageEase = [0.16, 1, 0.3, 1] as const;
 
-function AmbientBg() {
+const parallaxTransition = {
+  duration: LAYER_DURATION_S,
+  ease: pageEase,
+} as const;
+
+/** Élément avec parallax + apparition en cascade quand la page devient active. */
+function ParallaxReveal({
+  offset,
+  depth,
+  active,
+  index,
+  children,
+  className,
+}: {
+  offset: number;
+  depth: number;
+  active: boolean;
+  index: number;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const parallaxY = offset * PARALLAX.content * depth;
+
   return (
-    <div className="pointer-events-none absolute inset-0 z-0">
-      <div className="absolute top-1/4 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-warm/10 blur-[100px] md:h-[28rem] md:w-[28rem]" />
-      <div className="absolute right-1/4 bottom-1/4 h-56 w-56 rounded-full bg-brand-steel-400/10 blur-[90px]" />
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: parallaxY + 36 }}
+      animate={
+        active
+          ? { opacity: 1, y: parallaxY }
+          : { opacity: 0, y: parallaxY + 28 }
+      }
+      transition={{
+        duration: active ? 0.65 : 0.3,
+        delay: active ? 0.18 + index * 0.09 : 0,
+        ease: pageEase,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/** Wrapper léger pour le contenu des pages (parallax shell interne). */
+function ParallaxPiece({
+  offset,
+  depth,
+  children,
+  className,
+}: {
+  offset: number;
+  depth: number;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={false}
+      animate={{ y: offset * PARALLAX.content * depth }}
+      transition={parallaxTransition}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function layerMotion(layerIndex: number, page: number) {
+  const delta = layerIndex - page;
+  const active = delta === 0;
+
+  return {
+    opacity: active ? 1 : 0,
+    y: delta * PARALLAX.shell,
+    scale: active ? 1 : 0.96,
+  };
+}
+
+function AmbientBg({ page = 0 }: { page?: number }) {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+      {/* Plan lointain — presque immobile */}
+      <motion.div
+        className="absolute top-[18%] left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-brand-warm/12 blur-[110px] md:h-[32rem] md:w-[32rem]"
+        animate={{
+          y: page * -PARALLAX.bgFar,
+          scale: 1 + page * 0.04,
+        }}
+        transition={{ ...parallaxTransition, duration: LAYER_DURATION_S * 1.25 }}
+      />
+      {/* Plan médian */}
+      <motion.div
+        className="absolute right-[8%] bottom-[18%] h-64 w-64 rounded-full bg-brand-steel-400/12 blur-[95px] md:h-80 md:w-80"
+        animate={{
+          y: page * PARALLAX.bgMid * 0.55,
+          x: page * -PARALLAX.bgMid * 0.28,
+        }}
+        transition={{ ...parallaxTransition, duration: LAYER_DURATION_S * 1.1 }}
+      />
+      {/* Plan proche — bouge le plus */}
+      <motion.div
+        className="absolute -left-[8%] top-[55%] h-52 w-52 rounded-full bg-brand-gold-400/10 blur-[80px] md:h-72 md:w-72"
+        animate={{
+          y: page * -PARALLAX.bgNear * 0.45,
+          x: page * PARALLAX.bgNear * 0.2,
+          scale: 1 + page * 0.06,
+        }}
+        transition={parallaxTransition}
+      />
     </div>
   );
 }
 
-/** Mobile : sections empilées + apparition au scroll (pas de sticky 400vh). */
+/** Mobile / reduced-motion : sections empilées + apparition au scroll. */
 function MobileRevealSection({
   children,
   className,
@@ -182,9 +332,9 @@ function MobileRevealSection({
         animate={
           active || reduceMotion
             ? { opacity: 1, y: 0, scale: 1 }
-            : { opacity: 0, y: 32, scale: 0.98 }
+            : { opacity: 0, y: 40, scale: 0.97 }
         }
-        transition={{ duration: 0.55, ease }}
+        transition={{ duration: 0.75, ease: pageEase }}
       >
         {children(active || Boolean(reduceMotion))}
       </motion.div>
@@ -234,7 +384,7 @@ function MobileHomeFlow() {
             animate={active ? { opacity: 1 } : { opacity: 0.4 }}
             transition={{ duration: 0.4 }}
           >
-            <PrayerLayer />
+            <PrayerLayer active={active} />
           </motion.div>
         )}
       </MobileRevealSection>
@@ -348,23 +498,26 @@ function StickyScrollScene() {
     };
   }, []);
 
-  const layerTransition = { duration: 0.65, ease };
+  const layerTransition = {
+    duration: LAYER_DURATION_S,
+    ease: pageEase,
+    opacity: { duration: LAYER_DURATION_S * 0.75, ease: pageEase },
+  };
 
   const layerShellClass =
-    "pointer-events-none absolute inset-0 z-[1] flex items-stretch justify-start px-4 pt-[4.25rem] pb-[calc(4.35rem+env(safe-area-inset-bottom)+0.5rem)] sm:px-5 md:items-center md:justify-center md:px-8 md:pt-6 md:pb-6";
+    "pointer-events-none absolute inset-0 z-[1] flex will-change-transform items-stretch justify-start px-4 pt-[4.25rem] pb-[calc(4.35rem+env(safe-area-inset-bottom)+0.5rem)] sm:px-5 md:items-center md:justify-center md:px-8 md:pt-6 md:pb-6";
+
+  const offsets = LAYERS.map((_, index) => index - page);
 
   return (
-    <div className="relative h-dvh w-full overflow-hidden">
-      <AmbientBg />
+    <div className="relative h-dvh w-full overflow-hidden [perspective:1200px]">
+      <AmbientBg page={page} />
 
       <div className="relative h-full w-full touch-none">
         <motion.div
           className={cn(layerShellClass, "z-[1]")}
           initial={false}
-          animate={{
-            opacity: activeLayer === "hero" ? 1 : 0,
-            scale: activeLayer === "hero" ? 1 : 0.98,
-          }}
+          animate={layerMotion(0, page)}
           transition={layerTransition}
         >
           <div
@@ -375,7 +528,10 @@ function StickyScrollScene() {
                 : "pointer-events-none"
             )}
           >
-            <HeroLayer />
+            <HeroLayer
+              offset={offsets[0] ?? 0}
+              active={activeLayer === "hero"}
+            />
 
             <div
               className={cn(
@@ -385,7 +541,14 @@ function StickyScrollScene() {
                   : "pointer-events-none"
               )}
             >
-              <HeroScrollHint onClick={() => goToPage(1)} />
+              <ParallaxReveal
+                offset={offsets[0] ?? 0}
+                depth={1.9}
+                active={activeLayer === "hero"}
+                index={7}
+              >
+                <HeroScrollHint onClick={() => goToPage(1)} />
+              </ParallaxReveal>
             </div>
           </div>
         </motion.div>
@@ -393,10 +556,7 @@ function StickyScrollScene() {
         <motion.div
           className={cn(layerShellClass, "z-[2]")}
           initial={false}
-          animate={{
-            opacity: activeLayer === "prayer" ? 1 : 0,
-            scale: activeLayer === "prayer" ? 1 : 0.98,
-          }}
+          animate={layerMotion(1, page)}
           transition={layerTransition}
         >
           <div
@@ -407,17 +567,16 @@ function StickyScrollScene() {
                 : "pointer-events-none"
             )}
           >
-            <PrayerLayer />
+            <ParallaxPiece offset={offsets[1] ?? 0} depth={1.15} className="w-full">
+              <PrayerLayer active={activeLayer === "prayer"} />
+            </ParallaxPiece>
           </div>
         </motion.div>
 
         <motion.div
           className={cn(layerShellClass, "z-[3]")}
           initial={false}
-          animate={{
-            opacity: activeLayer === "quick" ? 1 : 0,
-            scale: activeLayer === "quick" ? 1 : 0.98,
-          }}
+          animate={layerMotion(2, page)}
           transition={layerTransition}
         >
           <div
@@ -429,7 +588,9 @@ function StickyScrollScene() {
             )}
           >
             <div className="flex min-h-full w-full items-start justify-center md:items-center">
-              <QuickAccessLayer active={activeLayer === "quick"} />
+              <ParallaxPiece offset={offsets[2] ?? 0} depth={1.2} className="w-full">
+                <QuickAccessLayer active={activeLayer === "quick"} />
+              </ParallaxPiece>
             </div>
           </div>
         </motion.div>
@@ -437,10 +598,7 @@ function StickyScrollScene() {
         <motion.div
           className={cn(layerShellClass, "z-[4]")}
           initial={false}
-          animate={{
-            opacity: activeLayer === "modules" ? 1 : 0,
-            scale: activeLayer === "modules" ? 1 : 0.98,
-          }}
+          animate={layerMotion(3, page)}
           transition={layerTransition}
         >
           <div
@@ -452,10 +610,98 @@ function StickyScrollScene() {
             )}
           >
             <div className="flex min-h-full w-full items-start justify-center md:items-center">
-              <ModulesLayer active={activeLayer === "modules"} />
+              <ParallaxPiece offset={offsets[3] ?? 0} depth={1.25} className="w-full">
+                <ModulesLayer active={activeLayer === "modules"} />
+              </ParallaxPiece>
             </div>
           </div>
         </motion.div>
+
+        {/* Indicateur — points serrés, écartés + labels au survol */}
+        <div className="absolute top-1/2 right-0 z-20 hidden -translate-y-1/2 md:block">
+          <nav
+            aria-label="Sections de l’accueil"
+            className="group/pages flex flex-col items-end gap-1.5 py-10 pr-3 pl-20 transition-[gap] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:gap-5 md:pr-5"
+          >
+            {LAYERS.map((id, index) => {
+              const active = index === page;
+              const isPrev = index === page - 1;
+              const isNext = index === page + 1;
+              const nearby = active || isPrev || isNext;
+
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-label={`Aller à ${LAYER_LABELS[id]}`}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => goToPage(index)}
+                  className="group/tip relative flex items-center justify-end outline-none before:absolute before:-inset-y-2 before:-left-16 before:-right-3 before:content-['']"
+                >
+                  {/* Label qui sort du point */}
+                  <span
+                    className={cn(
+                      "pointer-events-none absolute right-full top-1/2 mr-0 flex -translate-y-1/2 items-center",
+                      "origin-right scale-x-0 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                      "group-hover/pages:mr-2.5 group-hover/pages:scale-x-100 group-hover/pages:opacity-100",
+                      !nearby && "group-hover/pages:opacity-40"
+                    )}
+                    style={{
+                      transitionDelay: nearby
+                        ? `${Math.abs(index - page) * 35}ms`
+                        : "0ms",
+                    }}
+                  >
+                    <span
+                      className={cn(
+                        "whitespace-nowrap text-right text-[11px] tracking-wide",
+                        active
+                          ? "font-bold text-brand-warm"
+                          : isPrev || isNext
+                            ? "font-semibold text-brand-pearl/85"
+                            : "font-medium text-brand-steel-400"
+                      )}
+                    >
+                      {isPrev ? "↑ " : isNext ? "↓ " : ""}
+                      {LAYER_LABELS[id]}
+                    </span>
+                    <span
+                      className={cn(
+                        "ml-2 h-px w-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/pages:w-3",
+                        active
+                          ? "bg-brand-warm"
+                          : nearby
+                            ? "bg-brand-gold-400/60"
+                            : "bg-brand-gold-400/30"
+                      )}
+                      style={{
+                        transitionDelay: nearby
+                          ? `${Math.abs(index - page) * 35}ms`
+                          : "0ms",
+                      }}
+                      aria-hidden
+                    />
+                  </span>
+
+                  <motion.span
+                    className={cn(
+                      "relative z-[1] block rounded-full transition-colors duration-300",
+                      active
+                        ? "bg-brand-warm shadow-[0_0_10px_rgba(240,209,188,0.45)]"
+                        : "bg-brand-gold-400/40 group-hover/tip:bg-brand-gold-400/80"
+                    )}
+                    animate={{
+                      height: active ? 22 : 6,
+                      width: 6,
+                      opacity: active ? 1 : nearby ? 0.65 : 0.4,
+                    }}
+                    transition={{ duration: 0.45, ease: pageEase }}
+                  />
+                </button>
+              );
+            })}
+          </nav>
+        </div>
       </div>
     </div>
   );

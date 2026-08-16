@@ -23,7 +23,14 @@ export const PRIMARY_NAV: NavItem[] = [
     label: "Savoir",
     href: "/savoir",
     icon: GraduationCap,
-    match: ["/apprendre", "/quiz", "/bibliotheque", "/histoires"],
+    match: [
+      "/apprendre",
+      "/quiz",
+      "/bibliotheque",
+      "/histoires",
+      "/invocations",
+      "/questions",
+    ],
   },
   { id: "settings", label: "Réglages", href: "/settings", icon: Settings },
 ];

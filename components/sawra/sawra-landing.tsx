@@ -105,7 +105,7 @@ function PlayerMock() {
         aria-hidden
         className="pointer-events-none absolute -inset-8 rounded-[2.5rem] bg-brand-warm/15 blur-3xl"
       />
-      <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-brand-night/55 px-5 py-5 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:px-7 sm:py-6">
+      <div className="relative overflow-hidden rounded-[1.75rem] border border-brand-gold-400/20 bg-brand-panel/70 px-5 py-5 shadow-[0_30px_80px_rgba(0,0,0,0.4)] backdrop-blur-xl sm:px-7 sm:py-6">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 text-left">
             <p className="text-[10px] font-bold tracking-[0.22em] text-brand-gold-400 uppercase">
@@ -134,7 +134,7 @@ function PlayerMock() {
           <span className="text-[11px] tabular-nums text-brand-steel-400">
             02:14
           </span>
-          <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-white/10">
+          <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-brand-line/35">
             <motion.div
               className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-brand-gold-500 to-brand-warm"
               initial={{ width: "28%" }}
@@ -156,36 +156,43 @@ function AmbientField() {
 
   return (
     <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      {/* Base — nuit profonde + voile chaud discret */}
+      <div className="absolute inset-0 bg-gradient-to-b from-brand-night via-brand-night-soft to-brand-night" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_-5%,rgba(240,209,188,0.14),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_85%_40%,rgba(121,144,161,0.1),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_35%_at_10%_75%,rgba(206,166,135,0.08),transparent_55%)]" />
+
+      {/* Halos animés — sans grain */}
       <motion.div
-        className="absolute top-[-10%] left-1/2 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-brand-warm/14 blur-[130px]"
+        className="absolute top-[-8%] left-1/2 h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-brand-warm/12 blur-[120px]"
         animate={
           reduce
             ? undefined
-            : { scale: [1, 1.12, 1], opacity: [0.55, 0.85, 0.55] }
+            : { scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }
         }
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute top-[35%] right-[-10%] h-72 w-72 rounded-full bg-brand-steel-400/12 blur-[110px]"
+        className="absolute top-[38%] right-[-12%] h-80 w-80 rounded-full bg-brand-steel-400/10 blur-[100px]"
         animate={
-          reduce ? undefined : { x: [0, -30, 0], y: [0, 24, 0] }
-        }
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute bottom-[10%] left-[-5%] h-64 w-64 rounded-full bg-brand-gold-400/10 blur-[100px]"
-        animate={
-          reduce ? undefined : { x: [0, 40, 0], y: [0, -20, 0] }
+          reduce ? undefined : { x: [0, -28, 0], y: [0, 20, 0] }
         }
         transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
       />
-      <div
-        className="absolute inset-0 opacity-[0.035]"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-        }}
+      <motion.div
+        className="absolute bottom-[8%] left-[-8%] h-72 w-72 rounded-full bg-brand-gold-400/10 blur-[95px]"
+        animate={
+          reduce ? undefined : { x: [0, 32, 0], y: [0, -18, 0] }
+        }
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
       />
+
+      {/* Lueur centrale douce */}
+      <div className="absolute top-[42%] left-1/2 h-64 w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-warm/[0.06] blur-[80px]" />
+
+      {/* Vignette pour ancrer le contenu */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(7,17,29,0.55)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-brand-night to-transparent" />
     </div>
   );
 }
@@ -279,8 +286,8 @@ export function SawraLanding() {
 
           <motion.h1
             className="hero-title-gradient mt-5 text-7xl font-extrabold tracking-tight sm:text-8xl md:text-9xl"
-            initial={reduce ? false : { opacity: 0, y: 28, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={reduce ? false : { opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.95, delay: 0.08, ease: EASE }}
           >
             Sawra
@@ -439,7 +446,7 @@ export function SawraLanding() {
 
         <Reveal delay={0.12} className="mx-auto mt-14 max-w-2xl">
           <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-center sm:gap-6">
-            <div className="flex-1 rounded-2xl border border-white/8 bg-white/[0.03] px-6 py-5 text-center backdrop-blur-sm">
+            <div className="flex-1 rounded-2xl border border-brand-line/25 bg-brand-panel/40 px-6 py-5 text-center backdrop-blur-sm">
               <p className="text-xs font-bold tracking-[0.18em] text-brand-steel-400 uppercase">
                 Apprendre
               </p>
@@ -454,7 +461,7 @@ export function SawraLanding() {
             >
               <Play className="size-3.5 fill-current" />
             </motion.span>
-            <div className="flex-1 rounded-2xl border border-brand-gold-400/25 bg-brand-warm/8 px-6 py-5 text-center backdrop-blur-sm">
+            <div className="flex-1 rounded-2xl border border-brand-gold-400/25 bg-brand-warm/10 px-6 py-5 text-center backdrop-blur-sm">
               <p className="text-xs font-bold tracking-[0.18em] text-brand-gold-400 uppercase">
                 Écouter
               </p>

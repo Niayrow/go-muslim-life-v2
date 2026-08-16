@@ -73,7 +73,7 @@ export function FlipCountdown({
   return (
     <span
       className={cn(
-        "inline-flex items-center font-mono font-bold tabular-nums tracking-tight",
+        "inline-flex select-none items-center font-mono font-bold tabular-nums tracking-tight",
         className
       )}
       aria-label={value}

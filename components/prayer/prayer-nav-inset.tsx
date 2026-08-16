@@ -21,7 +21,7 @@ export function PrayerNavSide() {
   return (
     <Link
       href="/priere"
-      className="flex items-center justify-end gap-2 rounded-xl px-2 py-1.5 text-right transition-colors hover:bg-white/5"
+      className="flex select-none items-center justify-end gap-2 rounded-xl px-2 py-1.5 text-right transition-colors hover:bg-white/5"
     >
       {loading && !next ? (
         <Loader2 className="size-3.5 animate-spin text-brand-warm" />
@@ -35,7 +35,7 @@ export function PrayerNavSide() {
                 · {countdownShort}
               </span>
             </span>
-            <span className="block text-sm font-bold tabular-nums text-brand-pearl">
+            <span className="block select-none text-sm font-bold tabular-nums text-brand-pearl">
               {next.time}
             </span>
           </span>
@@ -65,7 +65,7 @@ export function PrayerNavInset({ variant }: PrayerNavInsetProps) {
     <Link
       href="/priere"
       className={cn(
-        "block transition-colors hover:bg-white/[0.03]",
+        "block select-none transition-colors hover:bg-white/[0.03]",
         isMobile
           ? "border-t border-white/5 px-1 pb-2 pt-2"
           : "border-t border-white/5 px-1 pb-1.5 pt-1.5"
@@ -80,10 +80,10 @@ export function PrayerNavInset({ variant }: PrayerNavInsetProps) {
               <span className="shrink-0 rounded-md bg-brand-warm/12 px-2 py-0.5 text-[10px] font-bold tracking-wide text-brand-warm uppercase">
                 {next.label}
               </span>
-              <span className="text-sm font-bold tabular-nums text-brand-pearl">
+              <span className="select-none text-sm font-bold tabular-nums text-brand-pearl">
                 {next.time}
               </span>
-              <span className="text-[11px] tabular-nums text-brand-mist">
+              <span className="select-none text-[11px] tabular-nums text-brand-mist">
                 {countdown}
               </span>
             </>
@@ -127,7 +127,7 @@ export function PrayerNavInset({ variant }: PrayerNavInsetProps) {
                 </span>
                 <span
                   className={cn(
-                    "block text-[11px] font-semibold tabular-nums",
+                    "block select-none text-[11px] font-semibold tabular-nums",
                     isNext ? "text-brand-pearl" : "text-brand-mist"
                   )}
                 >

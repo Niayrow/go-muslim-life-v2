@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion, useReducedMotion } from "motion/react";
 import {
   Loader2,
   CalendarDays,
@@ -36,7 +37,51 @@ const ICONS: Record<PrayerKey, LucideIcon> = {
   Isha: Moon,
 };
 
-export function PrayerLayer() {
+const ease = [0.16, 1, 0.3, 1] as const;
+
+function Reveal({
+  active,
+  index,
+  children,
+  className,
+}: {
+  active: boolean;
+  index: number;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const reduceMotion = useReducedMotion();
+
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 32 }}
+      animate={
+        active
+          ? { opacity: 1, y: 0 }
+          : { opacity: 0, y: 24 }
+      }
+      transition={{
+        duration: active ? 0.6 : 0.28,
+        delay: active ? 0.2 + index * 0.09 : 0,
+        ease,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+type PrayerLayerProps = {
+  active?: boolean;
+};
+
+export function PrayerLayer({ active = true }: PrayerLayerProps) {
+  const reduceMotion = useReducedMotion();
   const {
     next,
     countdown,
@@ -65,8 +110,8 @@ export function PrayerLayer() {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-4 px-1 text-center md:max-w-xl md:gap-7">
-        <div className="space-y-1.5">
+      <div className="mx-auto flex w-full max-w-lg select-none flex-col items-center gap-4 px-1 text-center md:max-w-xl md:gap-7">
+        <Reveal active={active} index={0} className="space-y-1.5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-gold-400">
             Horaires
           </p>
@@ -78,9 +123,13 @@ export function PrayerLayer() {
           {day?.hijri && (
             <p className="text-xs text-brand-mist md:text-sm">{day.hijri}</p>
           )}
-        </div>
+        </Reveal>
 
-        <div className="flex flex-wrap items-center justify-center gap-2.5">
+        <Reveal
+          active={active}
+          index={1}
+          className="flex flex-wrap items-center justify-center gap-2.5"
+        >
           <button
             type="button"
             onClick={() => setCityOpen(true)}
@@ -106,38 +155,40 @@ export function PrayerLayer() {
             <CalendarDays className="size-3.5 shrink-0 text-brand-warm" />
             Semaine
           </button>
-        </div>
+        </Reveal>
 
-        <div className="glass-panel w-full rounded-[1.75rem] px-5 py-7 md:px-8 md:py-9">
-          {loading && !next ? (
-            <div className="flex items-center justify-center gap-3 text-brand-mist">
-              <Loader2 className="size-5 animate-spin text-brand-warm" />
-              Chargement…
-            </div>
-          ) : error && !next ? (
-            <p className="text-sm text-brand-danger">{error}</p>
-          ) : next ? (
-            <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-gold-400">
-                Prochaine{next.isTomorrow ? " · demain" : ""}
-              </p>
-              <div className="flex flex-wrap items-end justify-center gap-x-6 gap-y-2 md:justify-between">
-                <div className="text-left">
-                  <p className="text-bronze-shine text-4xl font-extrabold tracking-tight md:text-5xl">
-                    {next.label}
-                  </p>
-                  <p className="mt-1 text-2xl font-semibold text-brand-warm tabular-nums md:text-3xl">
-                    {next.time}
-                  </p>
-                </div>
-                <FlipCountdown
-                  value={countdown}
-                  className="text-3xl text-brand-pearl md:text-4xl"
-                />
+        <Reveal active={active} index={2} className="w-full">
+          <div className="glass-panel w-full rounded-[1.75rem] px-5 py-7 md:px-8 md:py-9">
+            {loading && !next ? (
+              <div className="flex items-center justify-center gap-3 text-brand-mist">
+                <Loader2 className="size-5 animate-spin text-brand-warm" />
+                Chargement…
               </div>
-            </div>
-          ) : null}
-        </div>
+            ) : error && !next ? (
+              <p className="text-sm text-brand-danger">{error}</p>
+            ) : next ? (
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-gold-400">
+                  Prochaine{next.isTomorrow ? " · demain" : ""}
+                </p>
+                <div className="flex flex-wrap items-end justify-center gap-x-6 gap-y-2 md:justify-between">
+                  <div className="text-left">
+                    <p className="text-bronze-shine text-4xl font-extrabold tracking-tight md:text-5xl">
+                      {next.label}
+                    </p>
+                    <p className="mt-1 select-none text-2xl font-semibold text-brand-warm tabular-nums md:text-3xl">
+                      {next.time}
+                    </p>
+                  </div>
+                  <FlipCountdown
+                    value={countdown}
+                    className="text-3xl text-brand-pearl md:text-4xl"
+                  />
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </Reveal>
 
         <ul className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
           {slots.map((slot, index) => {
@@ -154,8 +205,21 @@ export function PrayerLayer() {
             );
 
             return (
-              <li
+              <motion.li
                 key={slot.key}
+                initial={
+                  reduceMotion ? false : { opacity: 0, y: 28 }
+                }
+                animate={
+                  active || reduceMotion
+                    ? { opacity: 1, y: 0 }
+                    : { opacity: 0, y: 20 }
+                }
+                transition={{
+                  duration: active ? 0.55 : 0.25,
+                  delay: active && !reduceMotion ? 0.45 + index * 0.07 : 0,
+                  ease,
+                }}
                 className={cn(
                   "float-tile flex items-center gap-2.5 rounded-2xl px-3 py-3 text-left",
                   isNext && "float-tile--active",
@@ -182,24 +246,26 @@ export function PrayerLayer() {
                 </span>
                 <span
                   className={cn(
-                    "font-mono text-sm font-semibold tabular-nums",
+                    "select-none font-mono text-sm font-semibold tabular-nums",
                     isNext ? "text-brand-warm" : "text-brand-pearl",
                     isPast && "text-brand-mist"
                   )}
                 >
                   {slot.time || "--:--"}
                 </span>
-              </li>
+              </motion.li>
             );
           })}
         </ul>
 
-        <Link
-          href="/priere"
-          className="text-sm font-semibold text-brand-warm transition-colors hover:text-brand-gold-300"
-        >
-          Voir le détail →
-        </Link>
+        <Reveal active={active} index={3 + slots.length}>
+          <Link
+            href="/priere"
+            className="text-sm font-semibold text-brand-warm transition-colors hover:text-brand-gold-300"
+          >
+            Voir le détail →
+          </Link>
+        </Reveal>
       </div>
 
       <PrayerCityDialog
