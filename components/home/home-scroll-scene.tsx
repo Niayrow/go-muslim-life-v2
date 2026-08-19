@@ -436,7 +436,7 @@ function MobileHomeFlow() {
       </MobileRevealSection>
 
       <MobileRevealSection
-        className="px-4 py-14 pb-[calc(5rem+env(safe-area-inset-bottom))]"
+        className="px-4 py-14 pb-[calc(5.6rem+env(safe-area-inset-bottom))]"
         amount={0.2}
       >
         {(active) => <ModulesLayer active={active} />}
@@ -449,15 +449,22 @@ function MobilePageShell({
   active,
   children,
   scrollable = false,
+  align = "center",
 }: {
   active: boolean;
   children: React.ReactNode;
   scrollable?: boolean;
+  align?: "center" | "start";
 }) {
+  const pinTop = align === "start";
+
   return (
     <div
       className={cn(
-        "absolute inset-0 flex items-center justify-center px-4 pt-[4.75rem] pb-[calc(5.25rem+env(safe-area-inset-bottom))]",
+        "absolute inset-0 flex justify-center px-4 pb-[calc(5.6rem+env(safe-area-inset-bottom))]",
+        pinTop
+          ? "items-start pt-3"
+          : "items-center pt-[4.75rem]",
         active ? "z-[1]" : "pointer-events-none z-0"
       )}
       aria-hidden={!active}
@@ -469,7 +476,8 @@ function MobilePageShell({
       <div
         data-snap-scroll={scrollable ? "true" : undefined}
         className={cn(
-          "flex h-full w-full max-w-6xl items-center justify-center",
+          "flex h-full w-full justify-center",
+          pinTop ? "max-w-6xl items-start" : "max-w-6xl items-center",
           scrollable && "overflow-y-auto overscroll-contain"
         )}
       >
@@ -585,52 +593,22 @@ function MobileSnapPager() {
       ) : null}
 
       {visited.has(1) ? (
-        <MobilePageShell active={page === 1}>
+        <MobilePageShell active={page === 1} scrollable align="start">
           <PrayerLayer active={page === 1} />
         </MobilePageShell>
       ) : null}
 
       {visited.has(2) ? (
-        <MobilePageShell active={page === 2} scrollable>
+        <MobilePageShell active={page === 2} scrollable align="start">
           <QuickAccessLayer active={page === 2} />
         </MobilePageShell>
       ) : null}
 
       {visited.has(3) ? (
-        <MobilePageShell active={page === 3} scrollable>
+        <MobilePageShell active={page === 3} scrollable align="start">
           <ModulesLayer active={page === 3} />
         </MobilePageShell>
       ) : null}
-
-      <div className="pointer-events-none absolute inset-x-0 bottom-[calc(4.85rem+env(safe-area-inset-bottom))] z-20 flex justify-center">
-        <nav
-          aria-label="Sections de l’accueil"
-          className="pointer-events-auto flex items-center gap-2 rounded-full border border-brand-line/30 bg-brand-panel/70 px-3 py-2"
-        >
-          {LAYERS.map((id, index) => {
-            const active = index === page;
-            return (
-              <button
-                key={id}
-                type="button"
-                aria-label={`Aller à ${LAYER_LABELS[id]}`}
-                aria-current={active ? "page" : undefined}
-                onClick={() => goToPage(index)}
-                className="flex h-5 w-5 items-center justify-center outline-none"
-              >
-                <span
-                  className={cn(
-                    "block rounded-full transition-all duration-200",
-                    active
-                      ? "h-2 w-5 bg-brand-warm"
-                      : "h-2 w-2 bg-brand-gold-400/45"
-                  )}
-                />
-              </button>
-            );
-          })}
-        </nav>
-      </div>
     </div>
   );
 }
@@ -830,7 +808,7 @@ function StickyScrollScene() {
   };
 
   const layerShellClass =
-    "pointer-events-none absolute inset-0 z-[1] flex items-center justify-center px-4 pt-[4.75rem] pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:px-5 md:px-8 md:pt-[6.5rem] md:pb-8";
+    "pointer-events-none absolute inset-0 z-[1] flex items-center justify-center px-4 pt-[4.75rem] pb-[calc(5.6rem+env(safe-area-inset-bottom))] sm:px-5 md:px-8 md:pt-[6.5rem] md:pb-8";
 
   const offsets = LAYERS.map((_, index) => index - page);
 
@@ -942,37 +920,6 @@ function StickyScrollScene() {
             </div>
           </div>
         </motion.div>
-
-        {/* Points — mobile (bas) */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(4.85rem+env(safe-area-inset-bottom))] z-20 flex justify-center md:hidden">
-          <nav
-            aria-label="Sections de l’accueil"
-            className="pointer-events-auto flex items-center gap-2 rounded-full border border-brand-line/30 bg-brand-panel/50 px-3 py-2 backdrop-blur-md"
-          >
-            {LAYERS.map((id, index) => {
-              const active = index === page;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  aria-label={`Aller à ${LAYER_LABELS[id]}`}
-                  aria-current={active ? "page" : undefined}
-                  onClick={() => goToPage(index)}
-                  className="flex h-5 w-5 items-center justify-center outline-none"
-                >
-                  <span
-                    className={cn(
-                      "block rounded-full transition-all duration-300",
-                      active
-                        ? "h-2 w-5 bg-brand-warm shadow-[0_0_10px_rgba(240,209,188,0.45)]"
-                        : "h-2 w-2 bg-brand-gold-400/45"
-                    )}
-                  />
-                </button>
-              );
-            })}
-          </nav>
-        </div>
 
         {/* Indicateur — desktop (droite) */}
         <div className="absolute top-1/2 right-0 z-20 hidden -translate-y-1/2 md:block">

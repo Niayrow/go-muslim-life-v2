@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import {
   Check,
@@ -9,6 +10,7 @@ import {
   LocateFixed,
   MapPin,
   Settings2,
+  Sparkles,
 } from "lucide-react";
 
 import { PrayerCityDialog } from "@/components/prayer/prayer-settings-dialogs";
@@ -218,6 +220,26 @@ export function SettingsView() {
             Données stockées dans le localStorage de ton navigateur (ville,
             méthode, affichage).
           </p>
+
+          <Link
+            href="/mises-a-jour"
+            className="flex items-center gap-3 rounded-2xl border border-brand-gold-400/25 bg-brand-warm/8 px-4 py-4 transition-colors hover:border-brand-gold-400/40 hover:bg-brand-warm/12"
+          >
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-warm/14 text-brand-warm">
+              <Sparkles className="size-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-xs font-semibold tracking-wide text-brand-gold-400 uppercase">
+                Version
+              </span>
+              <span className="mt-0.5 block text-base font-bold text-brand-pearl">
+                GoMuslimLife 2.0
+              </span>
+              <span className="mt-0.5 block text-sm text-brand-mist">
+                Voir les mises à jour
+              </span>
+            </span>
+          </Link>
         </>
       )}
 

@@ -110,7 +110,7 @@ export function PrayerLayer({ active = true }: PrayerLayerProps) {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-lg select-none flex-col items-center gap-4 px-1 text-center md:max-w-xl md:gap-7">
+      <div className="mx-auto flex w-full max-w-lg select-none flex-col items-center gap-3 px-1 text-center md:max-w-xl md:gap-7">
         <Reveal active={active} index={0} className="space-y-1.5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-gold-400">
             Horaires

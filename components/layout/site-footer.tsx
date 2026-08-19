@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, ExternalLink, FileText, Headphones, Shield } from "lucide-react";
+import { BookOpen, ExternalLink, FileText, Headphones, Shield, Sparkles } from "lucide-react";
 
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { cn } from "@/lib/utils";
 
 const LEGAL = [
+  { href: "/mises-a-jour", label: "Mises à jour", icon: Sparkles },
   { href: "/confidentialite", label: "Confidentialité", icon: Shield },
   { href: "/sources", label: "Sources", icon: BookOpen },
   { href: "/conditions", label: "Conditions", icon: FileText },

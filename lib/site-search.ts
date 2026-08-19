@@ -188,12 +188,13 @@ const PAGES: SearchEntry[] = [
     keywords: "paramètres settings configuration",
   },
   {
-    id: "plus",
-    title: "Plus",
-    href: "/plus",
+    id: "mises-a-jour",
+    title: "Mises à jour",
+    subtitle: "GoMuslimLife 2.0",
+    href: "/mises-a-jour",
     icon: Sparkles,
     category: "page",
-    keywords: "plus menu extras",
+    keywords: "mises à jour changelog nouveautés version 2.0 journal",
   },
 ];
 

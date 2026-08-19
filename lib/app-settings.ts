@@ -1,4 +1,5 @@
 export const STORAGE_STICKY_PRAYER = "settings-sticky-prayer";
+export const STORAGE_PRAYER_NAV_PROMPT = "settings-sticky-prayer-prompt";
 export const APP_SETTINGS_EVENT = "gml-app-settings";
 
 export type AppSettings = {
@@ -28,4 +29,24 @@ export function writeStickyPrayerBar(enabled: boolean) {
       detail: { stickyPrayerBar: enabled } satisfies Partial<AppSettings>,
     })
   );
+}
+
+/** Première visite : proposer les horaires dans la barre, une seule fois. */
+export function shouldOfferPrayerNavPrompt(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    if (localStorage.getItem(STORAGE_PRAYER_NAV_PROMPT) === "1") return false;
+    if (localStorage.getItem(STORAGE_STICKY_PRAYER) !== null) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function markPrayerNavPromptSeen() {
+  try {
+    localStorage.setItem(STORAGE_PRAYER_NAV_PROMPT, "1");
+  } catch {
+    /* quota / mode privé */
+  }
 }

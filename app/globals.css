@@ -570,12 +570,95 @@
   font-family: var(--font-amiri), "Times New Roman", Georgia, serif;
 }
 
-/* --- Shell / nav (transparent) --- */
+/* --- Shell / nav --- */
 
-.mobile-dock-chrome {
-  background: transparent;
-  border-top: 1px solid transparent;
-  box-shadow: none;
+.mobile-dock-glass {
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.85rem;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(27, 45, 67, 0.88) 0%,
+      rgba(13, 23, 37, 0.92) 55%,
+      rgba(7, 17, 29, 0.94) 100%
+    );
+  backdrop-filter: blur(40px) saturate(1.45);
+  -webkit-backdrop-filter: blur(40px) saturate(1.45);
+  border: 1px solid rgba(240, 209, 188, 0.28);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.48),
+    0 2px 10px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.mobile-dock-glass::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.03) 18%,
+    transparent 46%
+  );
+}
+
+.mobile-dock-glass::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(240, 209, 188, 0.08);
+}
+
+.mobile-dock-tab-chip {
+  background: linear-gradient(
+    180deg,
+    rgba(240, 209, 188, 0.28) 0%,
+    rgba(240, 209, 188, 0.12) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    0 0 16px rgba(240, 209, 188, 0.16);
+}
+
+.mobile-dock-glass .nav-tab--idle {
+  color: #e6edf5;
+}
+
+.mobile-dock-glass .nav-tab--active {
+  color: #f0d1bc;
+}
+
+@supports not (
+  (backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))
+) {
+  .mobile-dock-glass {
+    background: linear-gradient(
+      180deg,
+      rgba(27, 45, 67, 0.92) 0%,
+      rgba(13, 23, 37, 0.96) 100%
+    );
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .mobile-dock-glass {
+    background: linear-gradient(
+      180deg,
+      rgba(27, 45, 67, 0.94) 0%,
+      rgba(13, 23, 37, 0.98) 100%
+    );
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 .desk-nav-chrome {
@@ -702,7 +785,7 @@ html.has-sticky-prayer {
 
 @media (max-width: 767px) {
   .shell-main {
-    padding-bottom: calc(4.35rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(5.1rem + env(safe-area-inset-bottom));
   }
 }
 

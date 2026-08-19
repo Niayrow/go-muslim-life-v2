@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { DeskNav } from "@/components/layout/desk-nav";
 import { MobileHeader } from "@/components/layout/mobile-header";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { PrayerNavPrompt } from "@/components/layout/prayer-nav-prompt";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { useAppSettings } from "@/hooks/use-app-settings";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-dvh flex-col">
       <DeskNav />
       <MobileHeader />
+      <PrayerNavPrompt />
       <div
         className={cn(
           "shell-main flex min-h-0 flex-1 flex-col",

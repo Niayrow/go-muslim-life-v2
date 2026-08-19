@@ -65,7 +65,7 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
   const FeaturedIcon = FEATURED.icon;
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-3 px-1 py-0 text-center max-md:max-h-[min(100dvh,900px)] sm:gap-5 md:gap-8 md:py-4">
+    <div className="mx-auto flex w-full max-w-6xl flex-col justify-start gap-3 px-1 py-0 text-center sm:gap-5 md:justify-center md:gap-8 md:py-4">
       <motion.div
         className="space-y-2 md:space-y-3"
         initial={{ opacity: 0, y: 28 }}
