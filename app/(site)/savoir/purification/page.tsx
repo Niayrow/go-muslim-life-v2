@@ -3,11 +3,14 @@ import { Droplets } from "lucide-react";
 
 import { ModuleHub } from "@/components/savoir/module-hub";
 import { PURIFICATION_CHAPTERS } from "@/lib/savoir/purification-chapters";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Guide de la Purification — Savoir",
-  description: "Comprends la Tahâra en 6 chapitres",
-};
+export const metadata: Metadata = pageSeo({
+  title: "Guide de la Purification",
+  description:
+    "Comprends la Tahâra en 6 chapitres : Wudu, Ghusl, Tayammum, annulatifs, règles et lochies.",
+  path: "/savoir/purification",
+});
 
 export default function SavoirPurificationHubPage() {
   return (

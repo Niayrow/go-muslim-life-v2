@@ -9,6 +9,7 @@ import {
   COMPORTEMENT_CHAPTERS,
   type ComportementChapterId,
 } from "@/lib/savoir/comportement-chapters";
+import { pageSeo } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ chapitre: string }>;
@@ -24,10 +25,11 @@ export async function generateMetadata({
   const { chapitre } = await params;
   const chapter = getComportementChapter(chapitre);
   if (!chapter) return { title: "Chapitre — Comportement" };
-  return {
-    title: `${chapter.title} — Le Comportement Musulman`,
-    description: `Chapitre ${chapter.short} du guide du comportement`,
-  };
+  return pageSeo({
+    title: `${chapter.title} — Le Comportement musulman`,
+    description: `Chapitre ${chapter.short} du guide du comportement : ${chapter.title}.`,
+    path: `/savoir/comportement/${chapitre}`,
+  });
 }
 
 export default async function ComportementChapitrePage({ params }: PageProps) {

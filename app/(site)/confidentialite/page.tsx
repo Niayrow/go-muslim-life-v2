@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { Shield } from "lucide-react";
 
 import { LegalDoc } from "@/components/layout/legal-doc";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Confidentialité",
   description:
     "Politique de confidentialité de GoMuslimLife — protection de vos données personnelles.",
-};
+  path: "/confidentialite",
+});
 
 export default function ConfidentialitePage() {
   return (

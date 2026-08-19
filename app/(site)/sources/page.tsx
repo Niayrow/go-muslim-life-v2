@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { BookOpen } from "lucide-react";
 
 import { LegalDoc } from "@/components/layout/legal-doc";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Sources & crédits",
   description:
     "Sources religieuses, APIs et crédits open source utilisés par GoMuslimLife.",
-};
+  path: "/sources",
+});
 
 export default function SourcesPage() {
   return (

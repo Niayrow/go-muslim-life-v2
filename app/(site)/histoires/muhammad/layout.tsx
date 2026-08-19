@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Sîra de Muhammad ﷺ — Histoires",
+import { pageSeo } from "@/lib/seo";
+
+export const metadata: Metadata = pageSeo({
+  title: "Sîra de Muhammad ﷺ",
   description:
-    "De l'Année de l'Éléphant au Pèlerinage d'Adieu — 8 chapitres selon la tradition classique",
-};
+    "De l'Année de l'Éléphant au Pèlerinage d'Adieu — 8 chapitres selon la tradition classique.",
+  path: "/histoires/muhammad",
+});
 
 export default function MuhammadLayout({
   children,

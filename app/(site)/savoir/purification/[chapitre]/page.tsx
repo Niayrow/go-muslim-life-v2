@@ -9,6 +9,7 @@ import {
   PURIFICATION_CHAPTERS,
   type PurificationChapterId,
 } from "@/lib/savoir/purification-chapters";
+import { pageSeo } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ chapitre: string }>;
@@ -24,10 +25,11 @@ export async function generateMetadata({
   const { chapitre } = await params;
   const chapter = getChapter(chapitre);
   if (!chapter) return { title: "Chapitre — Purification" };
-  return {
+  return pageSeo({
     title: `${chapter.title} — Guide de la Purification`,
-    description: `Chapitre ${chapter.short} du guide de la Tahâra`,
-  };
+    description: `Chapitre ${chapter.short} du guide de la Tahâra : ${chapter.title}.`,
+    path: `/savoir/purification/${chapitre}`,
+  });
 }
 
 export default async function PurificationChapitrePage({ params }: PageProps) {

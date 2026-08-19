@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { FileText } from "lucide-react";
 
 import { LegalDoc } from "@/components/layout/legal-doc";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Conditions d’utilisation",
   description:
     "Conditions générales d’utilisation de GoMuslimLife.",
-};
+  path: "/conditions",
+});
 
 export default function ConditionsPage() {
   return (

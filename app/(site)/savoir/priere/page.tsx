@@ -3,11 +3,14 @@ import { Moon } from "lucide-react";
 
 import { ModuleHub } from "@/components/savoir/module-hub";
 import { PRIERE_CHAPTERS } from "@/lib/savoir/priere-chapters";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Guide de la Prière — Savoir",
-  description: "Apprends la Salat en 13 chapitres",
-};
+export const metadata: Metadata = pageSeo({
+  title: "Guide de la Prière",
+  description:
+    "Apprends la Salat en 13 chapitres : conditions, wudu, positions, récitations, erreurs fréquentes et dhikr après la prière.",
+  path: "/savoir/priere",
+});
 
 export default function SavoirPriereHubPage() {
   return (

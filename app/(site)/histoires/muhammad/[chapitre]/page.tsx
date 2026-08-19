@@ -9,6 +9,7 @@ import {
   MUHAMMAD_CHAPTERS,
   type MuhammadChapterId,
 } from "@/lib/histoires/muhammad-chapters";
+import { pageSeo } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ chapitre: string }>;
@@ -24,10 +25,11 @@ export async function generateMetadata({
   const { chapitre } = await params;
   const chapter = getChapter(chapitre);
   if (!chapter) return { title: "Chapitre — Muhammad ﷺ" };
-  return {
+  return pageSeo({
     title: `${chapter.title} — Sîra de Muhammad ﷺ`,
-    description: `${chapter.era} · ${chapter.title}`,
-  };
+    description: `${chapter.era} · ${chapter.title}.`,
+    path: `/histoires/muhammad/${chapitre}`,
+  });
 }
 
 export default async function MuhammadChapitrePage({ params }: PageProps) {

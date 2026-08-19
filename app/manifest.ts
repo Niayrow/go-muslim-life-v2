@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "GoMuslimLife",
     short_name: "GoMuslimLife",
     description:
-      "Ta pratique musulmane au quotidien — prière, savoir, Coran et plus.",
+      "Ta pratique musulmane au quotidien — horaires de prière, savoir, Adhkar et Coran.",
     start_url: "/",
     scope: "/",
     display: "standalone",

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -12,6 +13,14 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { pageSeo } from "@/lib/seo";
+
+export const metadata: Metadata = pageSeo({
+  title: "Savoir",
+  description:
+    "Modules pour pratiquer (purification, prière, comportement, jeûne, zakat) et histoires des Prophètes, chapitre par chapitre.",
+  path: "/savoir",
+});
 
 const MODULES: {
   n: string;

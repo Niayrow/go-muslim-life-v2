@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Moon, Palette, Type } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { pageSeo } from "@/lib/seo";
+
+export const metadata: Metadata = pageSeo({
+  title: "Design system",
+  description: "Fondations visuelles GoMuslimLife 2.0.",
+  path: "/design-system",
+  noIndex: true,
+});
 
 const palette = [
   { name: "Night", swatch: "bg-brand-night", hex: "#07111d" },

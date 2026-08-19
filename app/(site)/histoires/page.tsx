@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, BookHeart } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Histoires des Prophètes — Savoir",
-  description: "Récits de la Sîra et des prophètes, chapitre par chapitre",
-};
+import { pageSeo } from "@/lib/seo";
+
+export const metadata: Metadata = pageSeo({
+  title: "Histoires des Prophètes",
+  description:
+    "Récits de la Sîra et des prophètes, chapitre par chapitre — Muhammad ﷺ et bientôt d’autres parcours.",
+  path: "/histoires",
+});
 
 const STORIES = [
   {

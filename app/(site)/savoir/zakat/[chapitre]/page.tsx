@@ -9,6 +9,7 @@ import {
   ZAKAT_CHAPTERS,
   type ZakatChapterId,
 } from "@/lib/savoir/zakat-chapters";
+import { pageSeo } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ chapitre: string }>;
@@ -24,10 +25,11 @@ export async function generateMetadata({
   const { chapitre } = await params;
   const chapter = getChapter(chapitre);
   if (!chapter) return { title: "Chapitre — Zakat" };
-  return {
+  return pageSeo({
     title: `${chapter.title} — Guide de la Zakat`,
-    description: `Chapitre ${chapter.short} du guide de la Zakat`,
-  };
+    description: `Chapitre ${chapter.short} du guide de la Zakat : ${chapter.title}.`,
+    path: `/savoir/zakat/${chapitre}`,
+  });
 }
 
 export default async function ZakatChapitrePage({ params }: PageProps) {

@@ -3,11 +3,14 @@ import { Crown } from "lucide-react";
 
 import { ModuleHub } from "@/components/savoir/module-hub";
 import { COMPORTEMENT_CHAPTERS } from "@/lib/savoir/comportement-chapters";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Le Comportement Musulman — Savoir",
-  description: "Parfaire son caractère en 6 chapitres",
-};
+export const metadata: Metadata = pageSeo({
+  title: "Le Comportement musulman",
+  description:
+    "Parfaire son caractère (Ihsan) en 6 chapitres : colère, famille, langue, relations sociales.",
+  path: "/savoir/comportement",
+});
 
 export default function SavoirComportementHubPage() {
   return (

@@ -9,6 +9,7 @@ import {
   PRIERE_CHAPTERS,
   type PriereChapterId,
 } from "@/lib/savoir/priere-chapters";
+import { pageSeo } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ chapitre: string }>;
@@ -24,10 +25,11 @@ export async function generateMetadata({
   const { chapitre } = await params;
   const chapter = getChapter(chapitre);
   if (!chapter) return { title: "Chapitre — Prière" };
-  return {
+  return pageSeo({
     title: `${chapter.title} — Guide de la Prière`,
-    description: `Chapitre ${chapter.short} du guide de la Salat`,
-  };
+    description: `Chapitre ${chapter.short} du guide de la Salat : ${chapter.title}.`,
+    path: `/savoir/priere/${chapitre}`,
+  });
 }
 
 export default async function PriereChapitrePage({ params }: PageProps) {

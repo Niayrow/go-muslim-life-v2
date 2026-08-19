@@ -9,6 +9,7 @@ import {
   JEUNE_CHAPTERS,
   type JeuneChapterId,
 } from "@/lib/savoir/jeune-chapters";
+import { pageSeo } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ chapitre: string }>;
@@ -24,10 +25,11 @@ export async function generateMetadata({
   const { chapitre } = await params;
   const chapter = getChapter(chapitre);
   if (!chapter) return { title: "Chapitre — Jeûne" };
-  return {
+  return pageSeo({
     title: `${chapter.title} — Guide du Jeûne`,
-    description: `Chapitre ${chapter.short} du guide du Ramadan`,
-  };
+    description: `Chapitre ${chapter.short} du guide du Ramadan : ${chapter.title}.`,
+    path: `/savoir/jeune/${chapitre}`,
+  });
 }
 
 export default async function JeuneChapitrePage({ params }: PageProps) {

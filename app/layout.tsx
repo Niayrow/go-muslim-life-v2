@@ -1,7 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Amiri, Outfit } from "next/font/google";
 
+import { JsonLd } from "@/components/seo/json-ld";
 import { PwaRegister } from "@/components/pwa-register";
+import {
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_URL,
+} from "@/lib/seo";
 
 import "./globals.css";
 
@@ -17,30 +25,48 @@ const amiri = Amiri({
   weight: ["400", "700"],
 });
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://gomuslimlife.com";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "GoMuslimLife",
-    template: "%s · GoMuslimLife",
+    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    template: `%s · ${SITE_NAME}`,
   },
-  description: "Ta pratique musulmane, au quotidien",
-  applicationName: "GoMuslimLife",
-  keywords: [
-    "Islam",
-    "Prière",
-    "Coran",
-    "Adhkar",
-    "GoMuslimLife",
-    "Horaires de prière",
-  ],
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: SITE_KEYWORDS,
+  authors: [{ name: "SofianeWeb", url: "https://sofianeweb.fr" }],
+  creator: "SofianeWeb",
+  publisher: SITE_NAME,
+  category: "education",
+  referrer: "origin-when-cross-origin",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  alternates: {
+    canonical: SITE_URL,
+    languages: {
+      "fr-FR": SITE_URL,
+      "x-default": SITE_URL,
+    },
+  },
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "GoMuslimLife",
+    title: SITE_NAME,
   },
   icons: {
     icon: [
@@ -55,24 +81,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_FR",
     url: SITE_URL,
-    siteName: "GoMuslimLife",
-    title: "GoMuslimLife",
-    description: "Ta pratique musulmane, au quotidien",
-    images: [
-      {
-        url: "/logo.png",
-        width: 256,
-        height: 256,
-        alt: "GoMuslimLife",
-      },
-    ],
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
   },
   twitter: {
-    card: "summary",
-    title: "GoMuslimLife",
-    description: "Ta pratique musulmane, au quotidien",
-    images: ["/logo.png"],
+    card: "summary_large_image",
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
   },
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? {
+        verification: {
+          google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+        },
+      }
+    : {}),
 };
 
 export const viewport: Viewport = {
@@ -96,6 +120,7 @@ export default function RootLayout({
       className={`${outfit.variable} ${amiri.variable} h-full antialiased`}
     >
       <body className="relative z-[1] flex min-h-full flex-col font-sans">
+        <JsonLd />
         {children}
         <PwaRegister />
       </body>

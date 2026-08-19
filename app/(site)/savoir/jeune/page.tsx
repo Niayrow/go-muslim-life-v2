@@ -3,11 +3,14 @@ import { Moon } from "lucide-react";
 
 import { ModuleHub } from "@/components/savoir/module-hub";
 import { JEUNE_CHAPTERS } from "@/lib/savoir/jeune-chapters";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Guide du Jeûne — Savoir",
-  description: "Comprendre et vivre le Ramadan en 10 chapitres",
-};
+export const metadata: Metadata = pageSeo({
+  title: "Guide du Jeûne",
+  description:
+    "Comprendre et vivre le Ramadan en 10 chapitres : règles, exemptions, Tarawih, Laylatul Qadr et Aïd.",
+  path: "/savoir/jeune",
+});
 
 export default function SavoirJeuneHubPage() {
   return (
