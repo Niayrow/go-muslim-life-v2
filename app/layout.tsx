@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Amiri, Outfit } from "next/font/google";
 
+import { PostHogAnalytics } from "@/components/analytics/posthog-analytics";
 import { JsonLd } from "@/components/seo/json-ld";
 import { PwaRegister } from "@/components/pwa-register";
 import {
@@ -121,6 +122,7 @@ export default function RootLayout({
     >
       <body className="relative z-[1] flex min-h-full flex-col font-sans">
         <JsonLd />
+        <PostHogAnalytics />
         {children}
         <PwaRegister />
       </body>

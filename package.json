@@ -20,6 +20,7 @@
     "lucide-react-motion": "^0.4.0",
     "motion": "^13.0.0",
     "next": "16.3.0",
+    "posthog-js": "^1.418.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwind-merge": "^3.6.0"
