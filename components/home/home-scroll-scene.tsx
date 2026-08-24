@@ -1,23 +1,37 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { motion, useReducedMotion } from "motion/react";
 
 import { PrayerLayer } from "@/components/home/prayer-layer";
 import { QuickAccessLayer } from "@/components/home/quick-access";
 import { ModulesLayer } from "@/components/home/modules-section";
+import { InspirationFeed } from "@/components/home/inspiration-feed";
 import { SawraHeroCta } from "@/components/home/sawra-hero-cta";
 import { HomeSearchBar } from "@/components/search/home-search-bar";
 import { cn } from "@/lib/utils";
 
-type LayerId = "hero" | "prayer" | "quick" | "modules";
+type LayerId = "hero" | "prayer" | "quick" | "modules" | "inspiration";
 
-const LAYERS: LayerId[] = ["hero", "prayer", "quick", "modules"];
+const LAYERS: LayerId[] = [
+  "hero",
+  "prayer",
+  "quick",
+  "modules",
+  "inspiration",
+];
 const LAYER_LABELS: Record<LayerId, string> = {
   hero: "Accueil",
   prayer: "Horaires",
   quick: "Accès rapide",
   modules: "Modules",
+  inspiration: "Rappels",
 };
 const PAGE_COUNT = LAYERS.length;
 const LAYER_DURATION_S = 1.05;
@@ -436,10 +450,17 @@ function MobileHomeFlow() {
       </MobileRevealSection>
 
       <MobileRevealSection
-        className="px-4 py-14 pb-[calc(5.6rem+env(safe-area-inset-bottom))]"
+        className="px-4 py-14"
         amount={0.2}
       >
         {(active) => <ModulesLayer active={active} />}
+      </MobileRevealSection>
+
+      <MobileRevealSection
+        className="px-4 py-14 pb-[calc(5.6rem+env(safe-area-inset-bottom))]"
+        amount={0.1}
+      >
+        {(active) => <InspirationFeed active={active} />}
       </MobileRevealSection>
     </div>
   );
@@ -478,7 +499,8 @@ function MobilePageShell({
         className={cn(
           "flex h-full w-full justify-center",
           pinTop ? "max-w-6xl items-start" : "max-w-6xl items-center",
-          scrollable && "overflow-y-auto overscroll-contain"
+          scrollable &&
+            "overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         )}
       >
         {children}
@@ -609,6 +631,12 @@ function MobileSnapPager() {
           <ModulesLayer active={page === 3} />
         </MobilePageShell>
       ) : null}
+
+      {visited.has(4) ? (
+        <MobilePageShell active={page === 4} scrollable align="start">
+          <InspirationFeed active={page === 4} />
+        </MobilePageShell>
+      ) : null}
     </div>
   );
 }
@@ -626,7 +654,7 @@ function StickyScrollScene() {
 
   const activeLayer = LAYERS[page] ?? "hero";
 
-  const goToPage = (next: number) => {
+  const goToPage = useCallback((next: number) => {
     const clamped = Math.max(0, Math.min(PAGE_COUNT - 1, next));
     if (clamped === pageRef.current || lockedRef.current) return;
 
@@ -641,11 +669,11 @@ function StickyScrollScene() {
       setPaging(false);
       lockTimerRef.current = null;
     }, SNAP_LOCK_MS);
-  };
+  }, []);
 
-  const stepPage = (direction: 1 | -1) => {
+  const stepPage = useCallback((direction: 1 | -1) => {
     goToPage(pageRef.current + direction);
-  };
+  }, [goToPage]);
 
   useEffect(() => {
     const scrollY = window.scrollY;
@@ -661,8 +689,21 @@ function StickyScrollScene() {
     document.body.style.width = "100%";
 
     const onWheel = (event: WheelEvent) => {
-      event.preventDefault();
       if (Math.abs(event.deltaY) < WHEEL_THRESHOLD) return;
+
+      const scrollable = findScrollableParent(event.target);
+      if (scrollable) {
+        const atTop = scrollable.scrollTop <= 0;
+        const atBottom =
+          scrollable.scrollTop + scrollable.clientHeight >=
+          scrollable.scrollHeight - 2;
+        const canScroll =
+          (event.deltaY > 0 && !atBottom) || (event.deltaY < 0 && !atTop);
+
+        if (canScroll) return;
+      }
+
+      event.preventDefault();
       stepPage(event.deltaY > 0 ? 1 : -1);
     };
 
@@ -684,6 +725,23 @@ function StickyScrollScene() {
         (event.key === " " && !event.shiftKey)
       ) {
         event.preventDefault();
+        const scrollable = document.querySelector<HTMLElement>(
+          '[aria-hidden="false"] [data-snap-scroll="true"]'
+        );
+        const atBottom =
+          !scrollable ||
+          scrollable.scrollTop + scrollable.clientHeight >=
+            scrollable.scrollHeight - 2;
+        if (scrollable && !atBottom) {
+          scrollable.scrollBy({
+            top:
+              event.key === "ArrowDown"
+                ? 88
+                : Math.max(240, scrollable.clientHeight * 0.78),
+            behavior: "smooth",
+          });
+          return;
+        }
         stepPage(1);
       } else if (
         event.key === "ArrowUp" ||
@@ -691,6 +749,19 @@ function StickyScrollScene() {
         (event.key === " " && event.shiftKey)
       ) {
         event.preventDefault();
+        const scrollable = document.querySelector<HTMLElement>(
+          '[aria-hidden="false"] [data-snap-scroll="true"]'
+        );
+        if (scrollable && scrollable.scrollTop > 0) {
+          scrollable.scrollBy({
+            top:
+              event.key === "ArrowUp"
+                ? -88
+                : -Math.max(240, scrollable.clientHeight * 0.78),
+            behavior: "smooth",
+          });
+          return;
+        }
         stepPage(-1);
       }
     };
@@ -799,7 +870,7 @@ function StickyScrollScene() {
       window.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("touchcancel", onTouchCancel);
     };
-  }, []);
+  }, [stepPage]);
 
   const layerTransition = {
     duration: LAYER_DURATION_S,
@@ -883,7 +954,7 @@ function StickyScrollScene() {
           <div
             data-snap-scroll="true"
             className={cn(
-              "flex h-full w-full max-w-6xl items-center justify-center overflow-y-auto overscroll-contain touch-pan-y px-1",
+              "flex h-full w-full max-w-6xl items-center justify-center overflow-y-auto overscroll-contain touch-pan-y px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
               activeLayer === "quick"
                 ? "pointer-events-auto"
                 : "pointer-events-none"
@@ -907,15 +978,39 @@ function StickyScrollScene() {
           <div
             data-snap-scroll="true"
             className={cn(
-              "flex h-full w-full max-w-6xl items-center justify-center overflow-y-auto overscroll-contain touch-pan-y px-1",
+              "flex h-full w-full max-w-6xl items-start justify-center overflow-y-auto overscroll-contain touch-pan-y px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:items-center",
               activeLayer === "modules"
                 ? "pointer-events-auto"
                 : "pointer-events-none"
             )}
           >
-            <div className="flex min-h-full w-full items-center justify-center py-2">
+            <div className="flex min-h-full w-full items-start justify-center py-2 lg:items-center">
               <ParallaxPiece offset={offsets[3] ?? 0} depth={1.25} className="w-full">
                 <ModulesLayer active={activeLayer === "modules"} />
+              </ParallaxPiece>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className={cn(layerShellClass, "z-[5]")}
+          initial={false}
+          animate={layerMotion(4, page)}
+          transition={layerTransition}
+          aria-hidden={activeLayer !== "inspiration"}
+        >
+          <div
+            data-snap-scroll="true"
+            className={cn(
+              "flex h-full w-full max-w-6xl items-start justify-center overflow-y-auto overscroll-contain touch-pan-y px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+              activeLayer === "inspiration"
+                ? "pointer-events-auto"
+                : "pointer-events-none"
+            )}
+          >
+            <div className="flex min-h-full w-full items-start justify-center py-2">
+              <ParallaxPiece offset={offsets[4] ?? 0} depth={1.3} className="w-full">
+                <InspirationFeed active={activeLayer === "inspiration"} />
               </ParallaxPiece>
             </div>
           </div>

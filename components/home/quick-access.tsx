@@ -117,7 +117,7 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
           <Link
             href={FEATURED.href}
             className={cn(
-              "float-tile group relative z-0 flex h-full min-h-[160px] flex-col justify-between rounded-[1.75rem] border border-brand-gold-400/30 bg-gradient-to-br from-brand-warm/18 via-brand-panel to-brand-night p-5 text-left sm:min-h-[220px] md:min-h-[280px] md:p-8 lg:min-h-full lg:p-9",
+              "float-tile shaped-card-shadow group relative z-0 flex h-full min-h-[160px] flex-col justify-between rounded-[1.75rem] border border-brand-gold-400/30 bg-gradient-to-br from-brand-warm/18 via-brand-panel to-brand-night p-5 text-left sm:min-h-[220px] md:min-h-[280px] md:p-8 lg:min-h-full lg:p-9",
               "transition-[border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
               "hover:border-brand-gold-400/50"
             )}
@@ -185,7 +185,7 @@ export function QuickAccessLayer({ active = true }: QuickAccessLayerProps) {
                 <Link
                   href={item.href}
                   className={cn(
-                    "float-tile group relative flex h-full min-h-[108px] flex-col justify-between rounded-[1.25rem] p-3.5 text-left transition-[border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:min-h-[128px] sm:rounded-[1.5rem] sm:p-5 md:min-h-[150px] md:p-6",
+                    "float-tile shaped-card-shadow group relative flex h-full min-h-[108px] flex-col justify-between rounded-[1.25rem] p-3.5 text-left transition-[border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:min-h-[128px] sm:rounded-[1.5rem] sm:p-5 md:min-h-[150px] md:p-6",
                     "hover:border-brand-gold-400/35"
                   )}
                 >

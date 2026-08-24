@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import {
@@ -22,6 +23,9 @@ const MODULES: {
   href: string;
   icon: LucideIcon;
   chapters: number;
+  label: string;
+  accent: string;
+  accentRgb: string;
 }[] = [
   {
     n: "01",
@@ -31,6 +35,9 @@ const MODULES: {
     href: "/savoir/purification",
     icon: Droplets,
     chapters: 6,
+    label: "Les fondations",
+    accent: "#67d4e8",
+    accentRgb: "103, 212, 232",
   },
   {
     n: "02",
@@ -40,6 +47,9 @@ const MODULES: {
     href: "/savoir/priere",
     icon: Footprints,
     chapters: 13,
+    label: "Le quotidien",
+    accent: "#c7a5ff",
+    accentRgb: "199, 165, 255",
   },
   {
     n: "03",
@@ -49,6 +59,9 @@ const MODULES: {
     href: "/savoir/comportement",
     icon: Crown,
     chapters: 6,
+    label: "L’excellence",
+    accent: "#f2b96f",
+    accentRgb: "242, 185, 111",
   },
   {
     n: "04",
@@ -58,6 +71,9 @@ const MODULES: {
     href: "/savoir/jeune",
     icon: Moon,
     chapters: 10,
+    label: "La spiritualité",
+    accent: "#7fa7ff",
+    accentRgb: "127, 167, 255",
   },
   {
     n: "05",
@@ -67,6 +83,9 @@ const MODULES: {
     href: "/savoir/zakat",
     icon: Coins,
     chapters: 7,
+    label: "Le partage",
+    accent: "#78d6a3",
+    accentRgb: "120, 214, 163",
   },
 ];
 
@@ -119,14 +138,25 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
         </p>
       </motion.div>
 
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-5 lg:gap-5">
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-6 lg:gap-5">
         {MODULES.map((mod, index) => {
           const Icon = mod.icon;
+          const moduleStyle = {
+            "--module-accent": mod.accent,
+            "--module-accent-rgb": mod.accentRgb,
+            background: `linear-gradient(145deg, rgba(${mod.accentRgb}, 0.18) 0%, rgba(22, 37, 56, 0.96) 42%, rgba(11, 21, 34, 0.99) 100%)`,
+            borderColor: `rgba(${mod.accentRgb}, 0.34)`,
+          } as CSSProperties;
 
           return (
             <motion.li
               key={mod.n}
-              className="h-[5.75rem] min-w-0 overflow-hidden sm:h-[168px] md:h-[190px]"
+              className={cn(
+                "min-w-0",
+                "lg:col-span-2",
+                index === 4 && "sm:col-span-2",
+                index >= 3 && "lg:col-span-3"
+              )}
               initial={{ opacity: 0, y: 28, scale: 0.96 }}
               animate={
                 active
@@ -145,91 +175,121 @@ export function ModulesLayer({ active = true }: ModulesLayerProps) {
             >
               <Link
                 href={mod.href}
+                style={moduleStyle}
                 className={cn(
-                  "float-tile group relative flex h-full w-full overflow-hidden rounded-[1.25rem] px-4 py-3.5 text-left sm:flex-col sm:rounded-[1.5rem] sm:p-5 md:p-6",
-                  "flex-row items-center gap-4 sm:items-stretch sm:gap-0",
-                  "border-brand-gold-400/15 transition-[border-color] hover:border-brand-gold-400/40",
+                  "float-tile shaped-card-shadow group relative flex min-h-[8.25rem] w-full overflow-hidden rounded-[1.35rem] px-4 py-4 text-left sm:min-h-[13rem] sm:flex-col sm:rounded-[1.65rem] sm:p-5 md:min-h-[14rem] md:p-6",
+                  "flex-row items-start gap-4 sm:items-stretch sm:gap-0",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--module-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-brand-night",
+                  "transition-[border-color,box-shadow] hover:border-[var(--module-accent)]",
                   hoverEase
                 )}
               >
-                {/* Halo bronze au hover */}
+                {/* Signature colorée propre à chaque module */}
+                <span
+                  aria-hidden
+                  className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[var(--module-accent)] to-transparent opacity-80"
+                />
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
                 >
                   <span
                     className={cn(
-                      "absolute -top-16 -right-12 size-40 rounded-full bg-brand-warm/15 blur-3xl opacity-0 transition-opacity",
+                      "absolute -top-16 -right-12 size-48 rounded-full bg-[var(--module-accent)] opacity-[0.08] blur-3xl transition-opacity",
                       hoverEase,
-                      "group-hover:opacity-100"
+                      "group-hover:opacity-[0.16]"
                     )}
                   />
                   <span
                     className={cn(
-                      "absolute -bottom-20 -left-10 size-36 rounded-full bg-brand-gold-400/10 blur-3xl opacity-40 transition-opacity",
+                      "absolute -bottom-24 -left-14 size-44 rounded-full bg-[var(--module-accent)] opacity-[0.05] blur-3xl transition-opacity",
                       hoverEase,
-                      "group-hover:opacity-80"
+                      "group-hover:opacity-[0.11]"
                     )}
                   />
-                  <span className="absolute right-2 bottom-0 hidden select-none font-extrabold tracking-tighter text-brand-gold-400/[0.07] text-[4.5rem] leading-none sm:block sm:text-[5.5rem] md:text-[6.5rem]">
+                  <span
+                    className="absolute right-3 -bottom-2 hidden select-none text-[6rem] leading-none font-black tracking-tighter opacity-[0.08] sm:block md:text-[7.5rem]"
+                    style={{ color: mod.accent }}
+                  >
                     {mod.n}
                   </span>
                 </span>
 
                 <div className="relative flex shrink-0 items-center justify-between gap-2 sm:w-full sm:items-start">
                   <span
+                    style={{
+                      color: mod.accent,
+                      backgroundColor: `rgba(${mod.accentRgb}, 0.12)`,
+                      borderColor: `rgba(${mod.accentRgb}, 0.34)`,
+                      boxShadow: `inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 20px rgba(${mod.accentRgb},0.1)`,
+                    }}
                     className={cn(
-                      "flex size-11 items-center justify-center rounded-xl border border-brand-gold-400/25 bg-brand-warm/12 text-brand-warm shadow-[inset_0_1px_0_rgba(240,209,188,0.16)] transition-[transform,border-color,background-color]",
+                      "flex size-12 items-center justify-center rounded-2xl border transition-[transform,background-color]",
                       hoverEase,
-                      "group-hover:scale-105 group-hover:border-brand-gold-400/45 group-hover:bg-brand-warm/18 sm:size-10 md:size-11"
+                      "group-hover:-rotate-3 group-hover:scale-110 sm:size-13 md:size-14"
                     )}
                   >
-                    <Icon className="size-4 sm:size-[1.15rem]" strokeWidth={2.1} />
+                    <Icon className="size-5 sm:size-5.5 md:size-6" strokeWidth={2} />
                   </span>
-                  <span className="hidden text-[10px] font-bold tracking-[0.18em] text-brand-steel-500 tabular-nums uppercase sm:inline sm:text-[11px]">
-                    {mod.n}
+                  <span
+                    className="hidden rounded-full border px-2.5 py-1 text-[10px] font-bold tracking-[0.14em] uppercase sm:inline"
+                    style={{
+                      color: mod.accent,
+                      borderColor: `rgba(${mod.accentRgb}, 0.24)`,
+                      backgroundColor: `rgba(${mod.accentRgb}, 0.07)`,
+                    }}
+                  >
+                    {mod.label}
                   </span>
                 </div>
 
-                <div className="relative min-w-0 flex-1 overflow-hidden sm:mt-5 sm:flex sm:flex-col">
+                <div className="relative min-w-0 flex-1 sm:mt-5 sm:flex sm:flex-col">
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="min-w-0 truncate text-sm font-bold tracking-tight text-brand-pearl sm:text-base md:text-xl">
+                    <h3 className="min-w-0 text-base font-bold tracking-tight text-brand-pearl sm:text-lg md:text-xl">
                       {mod.title}
                     </h3>
-                    <span className="shrink-0 text-[10px] font-bold tracking-[0.18em] text-brand-steel-500 tabular-nums uppercase sm:hidden">
+                    <span
+                      className="shrink-0 text-[10px] font-bold tracking-[0.18em] tabular-nums uppercase sm:hidden"
+                      style={{ color: mod.accent }}
+                    >
                       {mod.n}
                     </span>
                   </div>
-                  <p className="mt-1 truncate text-[11px] leading-relaxed text-brand-mist sm:mt-1.5 sm:line-clamp-2 sm:whitespace-normal sm:text-xs md:text-sm">
+                  <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-brand-soft/80 sm:mt-2 sm:text-sm">
                     {mod.description}
                   </p>
 
                   <div
                     className={cn(
-                      "mt-2 flex items-center justify-between gap-2 sm:mt-auto sm:pt-5"
+                      "mt-3 flex items-center justify-between gap-2 sm:mt-auto sm:pt-5"
                     )}
                   >
-                    <span className="text-[10px] font-semibold tracking-[0.12em] text-brand-steel-500 uppercase sm:text-[11px]">
+                    <span className="text-[10px] font-semibold tracking-[0.12em] text-brand-soft/65 uppercase sm:text-[11px]">
                       {mod.chapters} chapitres
                     </span>
                     <span
                       className={cn(
-                        "inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.12em] text-brand-steel-400 uppercase transition-colors sm:text-[11px]",
+                        "inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.12em] uppercase transition-colors sm:text-[11px]",
                         hoverEase,
-                        "group-hover:text-brand-warm"
+                        "text-brand-soft/70 group-hover:text-[var(--module-accent)]"
                       )}
                     >
-                      <span className="hidden sm:inline">Explorer</span>
+                      <span>Explorer</span>
                       <span
+                        style={{
+                          borderColor: `rgba(${mod.accentRgb}, 0.28)`,
+                          backgroundColor: `rgba(${mod.accentRgb}, 0.08)`,
+                        }}
                         className={cn(
-                          "flex size-6 items-center justify-center rounded-full border border-brand-gold-400/20 bg-brand-warm/8 shadow-[inset_0_1px_0_rgba(240,209,188,0.12)] transition-all sm:size-7",
+                          "flex size-7 items-center justify-center rounded-full border transition-all",
                           hoverEase,
-                          "group-hover:border-brand-gold-400/45 group-hover:bg-brand-warm/15"
+                          "group-hover:scale-110"
                         )}
                       >
                         <ArrowRight
+                          style={{ color: mod.accent }}
                           className={cn(
-                            "size-3 text-brand-warm transition-transform sm:size-3.5",
+                            "size-3.5 transition-transform",
                             hoverEase,
                             "group-hover:translate-x-0.5"
                           )}

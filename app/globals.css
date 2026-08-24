@@ -312,6 +312,26 @@
     drop-shadow(0 0 10px rgb(206 166 135 / 0.16));
 }
 
+/* Cartes accueil — ombre courte qui suit exactement chaque arrondi */
+.shaped-card-shadow {
+  filter: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 2px 3px -1px rgba(0, 0, 0, 0.42),
+    0 8px 12px -9px rgba(0, 0, 0, 0.72),
+    0 16px 24px -20px rgba(0, 0, 0, 0.78);
+}
+
+.shaped-card-shadow:hover {
+  filter: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 3px 4px -2px rgba(0, 0, 0, 0.46),
+    0 10px 16px -11px rgba(0, 0, 0, 0.72),
+    0 18px 28px -22px rgba(0, 0, 0, 0.78),
+    0 0 18px rgba(var(--module-accent-rgb, 206, 166, 135), 0.08);
+}
+
 .brand-card {
   background: linear-gradient(
     180deg,
