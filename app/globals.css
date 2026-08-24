@@ -592,26 +592,266 @@
 
 /* --- Shell / nav --- */
 
+.liquid-glass-dock {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  contain: layout style paint;
+  border-radius: 1.35rem;
+  transform: translateZ(0);
+  box-shadow:
+    0 18px 52px rgba(0, 0, 0, 0.46),
+    0 4px 14px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.liquid-glass-dock__refract {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  contain: strict;
+}
+
+/* Champ principal : blur + saturation + distorsion douce aux bords */
+.liquid-glass-dock__refract-base {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(8, 14, 22, 0.22);
+  backdrop-filter: blur(44px) saturate(188%) brightness(1.08) contrast(1.05);
+  -webkit-backdrop-filter: blur(44px) saturate(188%) brightness(1.08) contrast(1.05);
+  filter: url(#liquid-glass-refract-base);
+  transform: translateZ(0);
+}
+
+/* Prismes latéraux : magnification + distorsion forte (effet lentille) */
+.liquid-glass-dock__prism {
+  position: absolute;
+  top: -18%;
+  bottom: -18%;
+  width: 30%;
+  background: rgba(255, 255, 255, 0.015);
+  backdrop-filter: blur(18px) saturate(215%) brightness(1.12);
+  -webkit-backdrop-filter: blur(18px) saturate(215%) brightness(1.12);
+  filter: url(#liquid-glass-refract-edge);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.liquid-glass-dock__prism--left {
+  left: -4%;
+  transform: scaleX(1.2) translateX(-3%) translateZ(0);
+  transform-origin: left center;
+  mask-image: linear-gradient(to right, #000 0%, #000 42%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 42%, transparent 100%);
+}
+
+.liquid-glass-dock__prism--right {
+  right: -4%;
+  transform: scaleX(1.2) translateX(3%) translateZ(0);
+  transform-origin: right center;
+  mask-image: linear-gradient(to left, #000 0%, #000 42%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, #000 0%, #000 42%, transparent 100%);
+}
+
+/* Aberration chromatique légère aux bords (renforce la réfraction) */
+.liquid-glass-dock__chromatic {
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  width: 16%;
+  opacity: 0.55;
+  mix-blend-mode: color-dodge;
+  pointer-events: none;
+}
+
+.liquid-glass-dock__chromatic--left {
+  left: 0;
+  transform: translateX(-2px) scaleX(1.06);
+  transform-origin: left center;
+  background: linear-gradient(
+    to right,
+    rgba(255, 148, 118, 0.14) 0%,
+    rgba(255, 148, 118, 0.04) 55%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, #000 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 0%, transparent 100%);
+}
+
+.liquid-glass-dock__chromatic--right {
+  right: 0;
+  transform: translateX(2px) scaleX(1.06);
+  transform-origin: right center;
+  background: linear-gradient(
+    to left,
+    rgba(128, 188, 255, 0.14) 0%,
+    rgba(128, 188, 255, 0.04) 55%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to left, #000 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, #000 0%, transparent 100%);
+}
+
+/* Caustiques alignées sur les zones de courbure latérale */
+.liquid-glass-dock__caustic {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(
+      ellipse 42% 95% at 0% 50%,
+      rgba(255, 196, 168, 0.11) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 42% 95% at 100% 50%,
+      rgba(148, 196, 255, 0.1) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 90% 50% at 50% 0%,
+      rgba(255, 255, 255, 0.06) 0%,
+      transparent 68%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.9;
+}
+
+/* Specular : reflet sur la courbe supérieure de la lentille */
+.liquid-glass-dock__specular {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      148deg,
+      rgba(255, 255, 255, 0.36) 0%,
+      rgba(255, 255, 255, 0.07) 20%,
+      transparent 44%
+    ),
+    radial-gradient(
+      ellipse 28% 80% at 0% 18%,
+      rgba(255, 255, 255, 0.12) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 28% 80% at 100% 18%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 70%
+    );
+  mix-blend-mode: soft-light;
+}
+
+/* Rim : épaisseur du verre, plus visible sur les bords courbés */
+.liquid-glass-dock__rim {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 0 0 1px rgba(240, 209, 188, 0.08),
+    inset 4px 0 10px rgba(255, 180, 150, 0.04),
+    inset -4px 0 10px rgba(140, 190, 255, 0.04);
+}
+
+.liquid-glass-dock__content {
+  height: 100%;
+}
+
+.liquid-glass-dock .nav-tab--idle {
+  color: #aab7c5;
+}
+
+.liquid-glass-dock .nav-tab--idle:active {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.liquid-glass-dock .nav-tab--active {
+  color: #f0d1bc;
+}
+
+@media (max-width: 767px) {
+  .liquid-glass-dock__prism {
+    filter: url(#liquid-glass-refract-edge-lite);
+    width: 26%;
+  }
+
+  .liquid-glass-dock__refract-base {
+    filter: url(#liquid-glass-refract-base);
+    backdrop-filter: blur(36px) saturate(180%) brightness(1.06) contrast(1.04);
+    -webkit-backdrop-filter: blur(36px) saturate(180%) brightness(1.06) contrast(1.04);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .liquid-glass-dock__refract-base,
+  .liquid-glass-dock__prism {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    filter: none;
+  }
+
+  .liquid-glass-dock__refract-base {
+    background: rgba(12, 21, 34, 0.88);
+  }
+
+  .liquid-glass-dock__prism,
+  .liquid-glass-dock__chromatic {
+    opacity: 0;
+  }
+
+  .liquid-glass-dock {
+    background: linear-gradient(
+      180deg,
+      rgba(27, 45, 67, 0.96) 0%,
+      rgba(13, 23, 37, 0.98) 100%
+    );
+  }
+
+  .mobile-dock-liquid-pill {
+    background: rgba(206, 166, 135, 0.16);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@supports not (
+  (backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))
+) {
+  .liquid-glass-dock__refract-base,
+  .liquid-glass-dock__prism {
+    display: none;
+  }
+
+  .liquid-glass-dock {
+    background: linear-gradient(
+      180deg,
+      rgba(27, 45, 67, 0.92) 0%,
+      rgba(13, 23, 37, 0.96) 100%
+    );
+  }
+}
+
 .mobile-dock-glass {
   isolation: isolate;
   position: relative;
   overflow: hidden;
-  border-radius: 1.85rem;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(27, 45, 67, 0.88) 0%,
-      rgba(13, 23, 37, 0.92) 55%,
-      rgba(7, 17, 29, 0.94) 100%
-    );
-  backdrop-filter: blur(40px) saturate(1.45);
-  -webkit-backdrop-filter: blur(40px) saturate(1.45);
-  border: 1px solid rgba(240, 209, 188, 0.28);
+  border-radius: 1.35rem;
+  background: rgba(12, 21, 34, 0.82);
+  backdrop-filter: blur(28px) saturate(1.25);
+  -webkit-backdrop-filter: blur(28px) saturate(1.25);
+  border: 1px solid rgba(166, 184, 203, 0.14);
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.48),
-    0 2px 10px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+    0 10px 36px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .mobile-dock-glass::before {
@@ -622,9 +862,8 @@
   border-radius: inherit;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.03) 18%,
-    transparent 46%
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 42%
   );
 }
 
@@ -634,32 +873,75 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 0 1px rgba(240, 209, 188, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(240, 209, 188, 0.04);
 }
 
-.mobile-dock-tab-chip {
-  background: linear-gradient(
-    180deg,
-    rgba(240, 209, 188, 0.28) 0%,
-    rgba(240, 209, 188, 0.12) 100%
-  );
+.mobile-dock-tab-active {
+  background: rgba(206, 166, 135, 0.11);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
-    0 0 16px rgba(240, 209, 188, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1px rgba(206, 166, 135, 0.16);
+}
+
+.mobile-dock-liquid-pill {
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 1.06rem;
+  transform: translateZ(0);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(240, 209, 188, 0.16) 18%,
+      rgba(206, 166, 135, 0.11) 52%,
+      rgba(206, 166, 135, 0.07) 100%
+    );
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border: 1px solid rgba(240, 209, 188, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+    0 8px 26px rgba(206, 166, 135, 0.16);
+  transition: box-shadow 0.32s ease;
+}
+
+.mobile-dock-liquid-pill::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.08) 28%,
+    transparent 52%
+  );
+}
+
+.mobile-dock-liquid-pill::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .mobile-dock-glass .nav-tab--idle {
-  color: #e6edf5;
+  color: #7990a1;
+}
+
+.mobile-dock-glass .nav-tab--idle:active {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .mobile-dock-glass .nav-tab--active {
   color: #f0d1bc;
 }
 
-@supports not (
-  (backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))
-) {
+@media (prefers-reduced-transparency: reduce) {
   .mobile-dock-glass {
     background: linear-gradient(
       180deg,

@@ -9,6 +9,7 @@ import {
 } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import {
+  ArrowUp,
   ArrowUpRight,
   BookOpen,
   LoaderCircle,
@@ -25,6 +26,7 @@ import { cn } from "@/lib/utils";
 const INITIAL_COUNT = 12;
 const BATCH_SIZE = 6;
 const MAX_RENDERED = 36;
+const BACK_TO_TOP_THRESHOLD = 360;
 const ease = [0.16, 1, 0.3, 1] as const;
 
 type FeedEntry = {
@@ -194,8 +196,10 @@ export function InspirationFeed({ active = true }: InspirationFeedProps) {
     amount: number;
   } | null>(null);
   const loadingRef = useRef(false);
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
   const [entries, setEntries] = useState(() => buildEntries(0, INITIAL_COUNT));
   const [announcement, setAnnouncement] = useState("");
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   const loadMore = useCallback(() => {
     if (loadingRef.current) return;
@@ -243,6 +247,40 @@ export function InspirationFeed({ active = true }: InspirationFeedProps) {
     pending.container.scrollTop -= pending.amount;
     pendingAdjustmentRef.current = null;
   }, [entries]);
+
+  useEffect(() => {
+    if (!active) {
+      setShowBackToTop(false);
+      return;
+    }
+
+    const container =
+      rootRef.current?.closest<HTMLElement>("[data-snap-scroll='true']") ?? null;
+    if (!container) return;
+
+    scrollContainerRef.current = container;
+
+    const updateVisibility = () => {
+      setShowBackToTop(container.scrollTop > BACK_TO_TOP_THRESHOLD);
+    };
+
+    updateVisibility();
+    container.addEventListener("scroll", updateVisibility, { passive: true });
+    return () => container.removeEventListener("scroll", updateVisibility);
+  }, [active, entries]);
+
+  const scrollToTop = useCallback(() => {
+    const container =
+      scrollContainerRef.current ??
+      rootRef.current?.closest<HTMLElement>("[data-snap-scroll='true']") ??
+      null;
+    if (!container) return;
+
+    container.scrollTo({
+      top: 0,
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
+  }, [reduceMotion]);
 
   useEffect(() => {
     if (!active) return;
@@ -326,6 +364,27 @@ export function InspirationFeed({ active = true }: InspirationFeedProps) {
       <p className="sr-only" aria-live="polite">
         {announcement}
       </p>
+
+      {active && showBackToTop ? (
+        <motion.button
+          type="button"
+          aria-label="Retour en haut du fil des rappels"
+          title="Retour en haut"
+          onClick={scrollToTop}
+          initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.92 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 12, scale: 0.92 }}
+          transition={{ duration: 0.28, ease }}
+          className={cn(
+            "fixed right-4 z-30 flex size-12 items-center justify-center rounded-full border border-brand-gold-400/30 bg-brand-panel/92 text-brand-warm shadow-[0_12px_32px_rgba(0,0,0,0.35)] backdrop-blur-md outline-none transition-[border-color,background-color,transform] duration-300",
+            "bottom-[calc(5.6rem+env(safe-area-inset-bottom)+0.75rem)] md:bottom-8",
+            "hover:border-brand-gold-400/50 hover:bg-brand-panel-elevated hover:text-brand-pearl",
+            "focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-night"
+          )}
+        >
+          <ArrowUp className="size-5" strokeWidth={2.2} />
+        </motion.button>
+      ) : null}
     </div>
   );
 }
