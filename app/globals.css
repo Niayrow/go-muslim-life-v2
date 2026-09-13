@@ -188,6 +188,34 @@
   }
 }
 
+/* Étoiles d’ambiance : animation CSS (compositeur) plutôt que Framer Motion
+   (JS), pour éviter un coût de script permanent sur toutes les pages. */
+@keyframes ambient-star-twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.2);
+  }
+}
+
+.ambient-star {
+  animation-name: ambient-star-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-star {
+    animation: none;
+    opacity: 0.45;
+    transform: scale(1);
+  }
+}
+
 /* --- Brand utilities (allégées depuis Sawra) --- */
 
 .glass-panel {
@@ -785,7 +813,6 @@
   }
 
   .liquid-glass-dock__refract-base {
-    filter: url(#liquid-glass-refract-base);
     backdrop-filter: blur(36px) saturate(180%) brightness(1.06) contrast(1.04);
     -webkit-backdrop-filter: blur(36px) saturate(180%) brightness(1.06) contrast(1.04);
   }

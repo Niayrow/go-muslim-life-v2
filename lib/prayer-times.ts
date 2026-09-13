@@ -104,6 +104,7 @@ export function formatMethodAngles(method: CalculationMethod): string {
   return `${fajr} · ${isha}`;
 }
 
+/** UOIF (France) — méthode par défaut pour tout le monde */
 export const DEFAULT_METHOD_ID = 12;
 
 export const PRAYER_SLOTS: Omit<PrayerSlot, "time">[] = [
@@ -117,6 +118,7 @@ export const PRAYER_SLOTS: Omit<PrayerSlot, "time">[] = [
 
 export const STORAGE_CITY = "prayer-city";
 export const STORAGE_METHOD = "prayer-method";
+export const STORAGE_METHOD_HINT = "prayer-method-hint";
 
 export function formatPrayerTime(time: string): string {
   return time?.split(" ")[0] || "--:--";

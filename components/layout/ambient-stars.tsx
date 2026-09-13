@@ -1,7 +1,3 @@
-"use client";
-
-import { motion, useReducedMotion } from "motion/react";
-
 const STARS = [
   { top: "8%", left: "12%", delay: 0, duration: 3 },
   { top: "14%", left: "78%", delay: 0.6, duration: 4 },
@@ -21,29 +17,22 @@ const STARS = [
   { top: "28%", left: "55%", delay: 2.0, duration: 3.7 },
 ] as const;
 
+/** Twinkle en CSS pur (compositeur), pas de RAF/JS en continu. */
 export function AmbientStars() {
-  const reduce = useReducedMotion();
-
   return (
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden contain-paint"
     >
       {STARS.map((star, i) => (
-        <motion.span
+        <span
           key={i}
-          className="absolute size-1 rounded-full bg-brand-warm/70 shadow-[0_0_12px_rgba(240,209,188,0.55)]"
-          style={{ top: star.top, left: star.left }}
-          animate={
-            reduce
-              ? { opacity: 0.45, scale: 1 }
-              : { opacity: [0.2, 0.9, 0.2], scale: [0.8, 1.2, 0.8] }
-          }
-          transition={{
-            duration: star.duration,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: star.delay,
+          className="ambient-star absolute size-1 rounded-full bg-brand-warm/70 shadow-[0_0_12px_rgba(240,209,188,0.55)]"
+          style={{
+            top: star.top,
+            left: star.left,
+            animationDuration: `${star.duration}s`,
+            animationDelay: `${star.delay}s`,
           }}
         />
       ))}

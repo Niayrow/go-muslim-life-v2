@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion, useReducedMotion } from "motion/react";
 import {
   Loader2,
@@ -15,18 +16,32 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import {
-  PrayerCityDialog,
-  PrayerMethodDialog,
-} from "@/components/prayer/prayer-settings-dialogs";
 import { FlipCountdown } from "@/components/prayer/flip-countdown";
-import { PrayerWeekDialog } from "@/components/prayer/prayer-week-dialog";
 import { usePrayerTimes } from "@/hooks/use-prayer-times";
 import {
   CALCULATION_METHODS,
+  STORAGE_METHOD_HINT,
   type PrayerKey,
 } from "@/lib/prayer-times";
 import { cn } from "@/lib/utils";
+
+/** Dialogs ouverts au clic uniquement : on évite de les inclure dans le
+ * bundle initial de l’accueil. */
+const PrayerCityDialog = dynamic(() =>
+  import("@/components/prayer/prayer-settings-dialogs").then(
+    (m) => m.PrayerCityDialog
+  )
+);
+const PrayerMethodDialog = dynamic(() =>
+  import("@/components/prayer/prayer-settings-dialogs").then(
+    (m) => m.PrayerMethodDialog
+  )
+);
+const PrayerWeekDialog = dynamic(() =>
+  import("@/components/prayer/prayer-week-dialog").then(
+    (m) => m.PrayerWeekDialog
+  )
+);
 
 const ICONS: Record<PrayerKey, LucideIcon> = {
   Fajr: Moon,
@@ -99,14 +114,35 @@ export function PrayerLayer({ active = true }: PrayerLayerProps) {
     searchingCity,
     locating,
     locateMe,
-  } = usePrayerTimes();
+  } = usePrayerTimes(active);
 
   const [cityOpen, setCityOpen] = useState(false);
   const [methodOpen, setMethodOpen] = useState(false);
   const [weekOpen, setWeekOpen] = useState(false);
+  const [methodHint, setMethodHint] = useState(false);
 
   const method =
     CALCULATION_METHODS.find((m) => m.id === methodId) ?? CALCULATION_METHODS[0];
+
+  useEffect(() => {
+    if (!active) return;
+    try {
+      if (localStorage.getItem(STORAGE_METHOD_HINT) === "1") return;
+    } catch {
+      return;
+    }
+    const timer = window.setTimeout(() => setMethodHint(true), 650);
+    return () => window.clearTimeout(timer);
+  }, [active]);
+
+  const dismissMethodHint = () => {
+    setMethodHint(false);
+    try {
+      localStorage.setItem(STORAGE_METHOD_HINT, "1");
+    } catch {
+      /* quota / mode privé */
+    }
+  };
 
   return (
     <>
@@ -138,15 +174,49 @@ export function PrayerLayer({ active = true }: PrayerLayerProps) {
             <MapPin className="size-3.5 shrink-0 text-brand-warm" />
             <span className="truncate">{location.name}</span>
           </button>
-          <button
-            type="button"
-            onClick={() => setMethodOpen(true)}
-            className="float-chip inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold text-brand-pearl"
-            aria-label="Changer la méthode de calcul"
-          >
-            <Settings2 className="size-3.5 shrink-0 text-brand-warm" />
-            {method.short}
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                dismissMethodHint();
+                setMethodOpen(true);
+              }}
+              className={cn(
+                "float-chip inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold text-brand-pearl",
+                methodHint && "ring-2 ring-brand-warm/55"
+              )}
+              aria-label="Changer la méthode de calcul"
+              aria-describedby={methodHint ? "prayer-method-hint" : undefined}
+            >
+              <Settings2 className="size-3.5 shrink-0 text-brand-warm" />
+              {method.short}
+            </button>
+
+            {methodHint ? (
+              <div
+                id="prayer-method-hint"
+                role="status"
+                className="absolute left-1/2 top-full z-30 mt-2.5 w-[min(17rem,calc(100vw-2rem))] -translate-x-1/2"
+              >
+                <span
+                  aria-hidden
+                  className="absolute -top-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 border-t border-l border-brand-gold-400/35 bg-brand-panel-strong"
+                />
+                <div className="rounded-2xl border border-brand-gold-400/35 bg-brand-panel-strong px-3.5 py-3 text-left shadow-[0_14px_32px_rgba(0,0,0,0.4)]">
+                  <p className="text-xs leading-relaxed text-brand-pearl">
+                    Vous pouvez changer l’angle de calcul ici.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={dismissMethodHint}
+                    className="mt-2 text-[11px] font-bold text-brand-warm"
+                  >
+                    Compris
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
           <button
             type="button"
             onClick={() => setWeekOpen(true)}

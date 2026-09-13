@@ -22,7 +22,7 @@ import {
   type PrayerSlot,
 } from "@/lib/prayer-times";
 
-export function usePrayerTimes() {
+export function usePrayerTimes(active: boolean = true) {
   const [location, setLocationState] =
     useState<PrayerLocation>(DEFAULT_LOCATION);
   const [methodId, setMethodIdState] = useState(DEFAULT_METHOD_ID);
@@ -45,7 +45,14 @@ export function usePrayerTimes() {
       const savedCity = localStorage.getItem(STORAGE_CITY);
       const savedMethod = localStorage.getItem(STORAGE_METHOD);
       if (savedCity) setLocationState(JSON.parse(savedCity));
-      if (savedMethod) setMethodIdState(Number.parseInt(savedMethod, 10) || DEFAULT_METHOD_ID);
+      if (savedMethod) {
+        setMethodIdState(
+          Number.parseInt(savedMethod, 10) || DEFAULT_METHOD_ID
+        );
+      } else {
+        localStorage.setItem(STORAGE_METHOD, String(DEFAULT_METHOD_ID));
+        setMethodIdState(DEFAULT_METHOD_ID);
+      }
     } catch {
       /* ignore */
     }
@@ -92,7 +99,7 @@ export function usePrayerTimes() {
   }, [hydrated, location, methodId]);
 
   useEffect(() => {
-    if (!day) return;
+    if (!day || !active) return;
 
     const tick = () => {
       const current = getNextPrayer(day.timings);
@@ -103,7 +110,7 @@ export function usePrayerTimes() {
     tick();
     const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, [day]);
+  }, [day, active]);
 
   useEffect(() => {
     if (cityQuery.trim().length < 2) {
